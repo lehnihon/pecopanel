@@ -1,0 +1,22 @@
+.alert{
+    ul{
+        margin:0;
+    }
+}
+
+.dropdown-menu{
+    border-radius: 0.75rem;
+    padding:0;
+    .dropdown-item{
+        &:hover{
+            cursor: pointer !important;
+        }
+    }
+}
+
+.has-danger{
+    .form-control{
+        background-color: transparent;
+        color: inherit;
+    }
+}

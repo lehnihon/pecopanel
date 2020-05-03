@@ -4,7 +4,14 @@
 ])
 
 @section('content')
-    <div class="content">       
+    <div class="content">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('home') }}">Servidores</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('webapp.index',request()->id) }}">Aplicativos Web</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Criar</li>
+            </ol>
+        </nav>        
         <div class="row">
             <div class="col-md-12">
                 <div class="card ">
@@ -13,10 +20,9 @@
                         <p class="card-category">Criar uma aplicação web</p>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('webapp.store') }}" method="POST">
+                        <form action="{{ route('webapp.store',request()->id) }}" method="POST">
                             @csrf
 
-                            <input type="hidden" name="server" value="{{$server}}">
                             <div class="row">
                                 <div class="col-sm-6 form-group{{ $errors->has('name') ? ' has-danger' : '' }}">
                                     <label for="name">Nome</label>

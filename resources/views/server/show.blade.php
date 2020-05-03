@@ -12,23 +12,72 @@
             </ol>
         </nav>    
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-lg-3 col-sm-6 mb-3">
+                <div class="card mb-0 h-100 p-4">
+                    <div class="d-flex mb-2">
+                        <div><i class="font-big fas fa-microchip"></i></div>
+                        <div class="ml-auto text-primary">CPU</div>    
+                    </div>
+                    <h4 class="mb-1">
+                        {{$hardware['totalCPUCore']}} Núcleos
+                    </h4>
+                    <p class="mb-0">
+                        {{$hardware['processorName']}}
+                    </p>
+                </div>  
+            </div>
+            <div class="col-lg-3 col-sm-6 mb-3">
+                <div class="card mb-0 h-100 p-4">
+                    <div class="d-flex mb-2">
+                        <div><i class="font-big fas fa-tachometer-alt"></i></div>
+                        <div class="ml-auto text-primary">MEMÓRIA</div>    
+                    </div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar bg-success" role="progressbar" style="width:{{($hardware['percMemory'] < 15 )? '15' : $hardware['percMemory']}}%" aria-valuenow="{{$hardware['percMemory']}}" aria-valuemin="0" aria-valuemax="100">{{$hardware['percMemory']}}%</div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="font-small">0</div>
+                        <div class="ml-auto font-small">{{round($hardware['totalMemory'],2)}}GB</div>
+                    </div>
+
+                </div>  
+            </div>
+            <div class="col-lg-3 col-sm-6 mb-3">
+                <div class="card mb-0 h-100 p-4">
+                    <div class="d-flex mb-2">
+                        <div><i class="font-big fas fa-hdd"></i></div>
+                        <div class="ml-auto text-primary">DISCO</div>    
+                    </div>
+                    <div class="progress mt-3">
+                        <div class="progress-bar bg-success" role="progressbar" style="width:{{($hardware['diskPerc'] < 15 )? '15' : $hardware['diskPerc']}}%" aria-valuenow="{{$hardware['diskPerc']}}" aria-valuemin="0" aria-valuemax="100">{{$hardware['diskPerc']}}%</div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="font-small">0</div>
+                        <div class="ml-auto font-small">{{round($hardware['diskTotal'],2)}}GB</div>
+                    </div>
+                </div>  
+            </div>
+            <div class="col-lg-3 col-sm-6 mb-3">
+                <div class="card mb-0 h-100 p-4">
+                    <div class="d-flex mb-2">
+                        <div><i class="font-big fas fa-clock"></i></div>
+                        <div class="ml-auto text-primary">UPTIME</div>    
+                    </div>
+                    <h4 class="mt-3 text-center">
+                        {{$hardware['uptime']}}
+                    </h4>
+                </div>  
+            </div>
+
+            <div class="col-md-12">
                 <div class="card ">
-                    <div class="card-header ">
-                        <h5 class="card-title">Servidor</h5>
-                        <p class="card-category">Detalhes</p>
+                    <div class="card-header">
+                        <h4 class="card-title"><i class="fas fa-server mr-2"></i> {{$server['name']}}</h4>
+                        <p class="card-category">{{$server['ipAddress']}}</p>
                     </div>
                     <div class="card-body">
                         <table class="table">
                             <tbody>
-                                <tr>
-                                    <th>NOME</th>
-                                    <td>{{$server['name']}}</td>
-                                </tr>
-                                <tr>
-                                    <th>IP</th>
-                                    <td>{{$server['ipAddress']}}</td>
-                                </tr>
                                 <tr>
                                     <th>SISTEMA OPERACIONAL</th>
                                     <td>{{$server['os']}}</td>
@@ -41,51 +90,9 @@
                                     <th>STATUS</th>
                                     <td>@if($server['online'] == 'true') <span class='text-success'>ONLINE</span> @else <span class='text-danger'>OFFLINE</span> @endif</td>
                                 </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card ">
-                    <div class="card-header ">
-                        <h5 class="card-title">Hardware</h5>
-                        <p class="card-category">Informações</p>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th>PROCESSADOR</th>
-                                    <td>{{$hardware['processorName']}}</td>
-                                </tr>
-                                <tr>
-                                    <th>NÚCLEOS</th>
-                                    <td>{{$hardware['totalCPUCore']}}</td>
-                                </tr>
-                                <tr>
-                                    <th>MEMÓRIA TOTAL</th>
-                                    <td>{{round($hardware['totalMemory'],2)}}GB</td>
-                                </tr>
-                                <tr>
-                                    <th>MEMÓRIA LIVRE</th>
-                                    <td>{{round($hardware['freeMemory'],2)}}GB</td>
-                                </tr>
-                                <tr>
-                                    <th>HD TOTAL</th>
-                                    <td>{{round($hardware['diskTotal'],2)}}GB</td>
-                                </tr>
-                                <tr>
-                                    <th>HD LIVRE</th>
-                                    <td>{{round($hardware['diskFree'],2)}}GB</td>
-                                </tr>
                                 <tr>
                                     <th>CARGA MÉDIA</th>
                                     <td>{{$hardware['loadAvg']}}</td>
-                                </tr>
-                                <tr>
-                                    <th>TEMPO DE ATIVIDADE</th>
-                                    <td>{{$hardware['uptime']}}</td>
                                 </tr>
                             </tbody>
                         </table>

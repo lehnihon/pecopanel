@@ -52,19 +52,31 @@ Route::group(['middleware' => 'auth'], function () {
 	});
 
 	Route::prefix('server')->group(function () {
+		Route::get('/{id}/database','ServerController@database')->name('database.index');
+		Route::get('/{id}/database/{iddb}/show','ServerController@databaseShow')->name('database.show');	
+		Route::get('/{id}/database/create','ServerController@databaseCreate')->name('database.create');
+		Route::get('{id}/database/create-user','ServerController@databaseCreateUser')->name('database.create.user');
+		Route::post('{id}/database/store','ServerController@databaseStore')->name('database.store');
+		Route::post('{id}/database/store-user','ServerController@databaseStoreUser')->name('database.store.user');
+		Route::get('{id}/database/{iddb}/attach','ServerController@databaseAttach')->name('database.attach');
+		Route::get('{id}/database/{iddb}/destroy','ServerController@databaseDestroy')->name('database.destroy');
+		Route::get('{id}/database/{iddb}/revoke/{user}','ServerController@databaseRevokeUser')->name('database.revoke.user');
+		Route::get('{id}/database/{idus}/update-user','ServerController@databaseUpdateUser')->name('database.update.user');
+		Route::get('{id}/database/{idus}/destroy-user','ServerController@databaseDestroyUser')->name('database.destroy.user');
+		Route::get('/{id}/create','ServerController@create')->name('server.create');
+		Route::get('/{id}/webapp','ServerController@webApp')->name('webapp.index');
+		Route::post('{id}/webapp','ServerController@webAppStore')->name('webapp.store');
+		Route::get('/{id}/webapp/create','ServerController@webAppCreate')->name('webapp.create');
+		Route::get('/{id}/webapp/{idwa}/show','ServerController@webAppShow')->name('webapp.show');
+		Route::get('/{id}/webapp/{idwa}/rebuild','ServerController@webAppRebuild')->name('webapp.rebuild');
+		Route::get('/{id}/webapp/{idwa}/default','ServerController@webAppDefault')->name('webapp.default');
+		Route::get('/{id}/webapp/{idwa}/destroy','ServerController@webAppDestroy')->name('webapp.destroy');
+		Route::post('/{id}/webapp/{idwa}/script','ServerController@webAppScript')->name('webapp.script');
+		Route::get('/{id}/webapp/{idwa}/script/{script}','ServerController@webAppScriptDestroy')->name('webapp.script.destroy');
 		Route::get('/','ServerController@index')->name('server.index');
 		Route::get('/list','ServerController@list')->name('server.list');
-		Route::get('/{id}/create','ServerController@create')->name('server.create');
 		Route::get('/{id}','ServerController@show')->name('server.show');
 		Route::post('/','ServerController@store')->name('server.store');
-	});
-
-	Route::prefix('webapp')->group(function () {
-		Route::get('/','WebAppController@index')->name('webapp.index');
-		Route::get('/{id}/list','WebAppController@list')->name('webapp.list');
-		Route::get('/{id}/create','WebAppController@create')->name('webapp.create');
-		Route::get('/{id}','WebAppController@show')->name('webapp.show');
-		Route::post('/','WebAppController@store')->name('webapp.store');
 	});
 	
 	Route::get('{page}', ['as' => 'page.index', 'uses' => 'PageController@index']);

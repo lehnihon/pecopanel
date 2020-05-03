@@ -89,6 +89,9 @@ class ServerController extends Controller
         
         $hardware = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/hardwareinfo')->json();
+        $hardware['percMemory'] = $this->percCalc($hardware['totalMemory'],$hardware['freeMemory']);
+        $hardware['diskPerc'] = $this->percCalc($hardware['diskTotal'],$hardware['diskFree']);
+
         if(!isset($server['id'])){
             return redirect('home')->with('status', "Servidor não existe");
         }else{
@@ -130,12 +133,297 @@ class ServerController extends Controller
         //
     }
 
+    public function webApp($id){
+        $webapps = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+        ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps')->json();
+
+        return view("webapp.index",['webapps' => $webapps['data']]);
+    }
+
+    public function webAppCreate($id){
+        $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users')->json();
+        return view("webapp.create",['server' => $id, 'users' => $users['data']]);
+    }
+
+    public function webAppStore($id, Request $request){
+        $data = $this->validatorWebApp($request);
+
+        if(empty($data['user-check'])){
+            $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+                ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users',['username' => $data['user']])->json();
+            if(isset($user['errors'])){
+                $status = "Erro ao criar o usuário";
+                return redirect('webapp')->with('status', $status);
+            }else{
+                $data['user'] = $user['id'];
+            }               
+        }
+
+        $server = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/custom',[
+                'name' => $data['name'],
+                'user' => $data['user'],
+                'domainName' => $data['domain'],
+                'stack' => $data['stack'],
+                'stackMode' => $data['stackmode'],
+                'phpVersion' => 'php73rc',
+                'clickjackingProtection' => true,
+                'xssProtection' => true,
+                'mimeSniffingProtection' => true,
+                'processManager' => 'ondemand',
+                'processManagerMaxChildren'=> 50,
+                'processManagerMaxRequests' => 500,
+                'timezone' => 'America/Sao_Paulo',
+                'maxExecutionTime' => 30,
+                'maxInputTime' => 60,
+                'maxInputVars' => 1000,
+                'memoryLimit' => 256,
+                'postMaxSize' => 256,
+                'uploadMaxFilesize' => 256,
+                'sessionGcMaxlifetime' => 1440,
+                'allowUrlFopen' => true
+            ])->json();
+            
+        $status = (!isset($server['errors'])) ? "Aplicação Web criada com sucesso" : "Erro ao cadastrar aplicação web";
+        return redirect()->route('webapp.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function webAppShow($id, $idwa){
+        $webapp = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa)->json();
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer')->json();
+        return view("webapp.show",['webapp' => $webapp, 'wascript' => $wascript]);
+    }
+
+    public function webAppScript($id, $idwa, Request $request){
+        $data = $this->validatorWebAppScript($request);
+
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer',
+            ['name' => $data['script']])->json();
+
+        if(isset($wascript['message'])){
+            $status = "Erro ao instalar o script";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }else{
+            $status = "Script instalado com sucesso";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }
+    }
+
+    public function webAppRebuild($id, $idwa){
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/rebuild')->json();
+        if(isset($wascript['message'])){
+            $status = "Erro ao reconstruir a aplicação web";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }else{
+            $status = "Aplicação web reconstruida";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }
+    }
+
+    public function webAppDestroy($id, $idwa){
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa)->json();
+        if(isset($wascript['message'])){
+            $status = "Erro ao remover a aplicação web";
+            return redirect()->route('webapp.index', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Aplicação web removida";
+            return redirect()->route('webapp.index', ['id' => $id])->with('status', $status);
+        }
+    }
+
+    public function webAppDefault($id, $idwa){
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/default')->json();
+        if(isset($wascript['message'])){
+            $status = "Erro ao definir a aplicação web para padrão";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }else{
+            $status = "Aplicação web definida como padrão";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }
+    }
+
+    public function webAppScriptDestroy($id, $idwa, $script){
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer/'.$script)->json();
+
+        if(isset($wascript['message'])){
+            $status = "Erro ao remover o script";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }else{
+            $status = "Script removido";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }
+    }
+
+    public function database($id){
+        $databases = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases')->json();
+        $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databaseusers')->json();
+
+        return view("database.index",['databases' => $databases['data'], 'users' => $users['data']]);
+    }
+
+    public function databaseShow($id, $iddb){
+        $database = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases/'.$iddb)->json();
+        $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases/'.$iddb.'/grant')->json();
+
+        return view("database.show",['database' => $database,'users' => $users['data']]);
+    }
+
+    public function databaseAttach($id, $iddb, Request $request){
+        $data = $this->validatorDatabaseAttach($request);
+
+        $database = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases/'.$iddb.'/grant',['id' => $data['username']])->json();
+
+        $status = (!isset($database['errors'])) ? "Usuário anexado ao banco de dados" : "Erro ao anexar usuário";
+        return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function databaseCreate($id){
+        return view("database.create");
+    }
+
+    public function databaseStore($id, Request $request){
+        $data = $this->validatorDatabase($request);
+
+        $database = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases',['name' => $data['name']])->json();
+
+        $status = (!isset($database['errors'])) ? "Banco de dados criado" : "Erro ao cadastrar banco de dados";
+        return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function databaseDestroy($id, $iddb){
+        $database = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases/'.$iddb)->json();
+        if(isset($database['message'])){
+            $status = "Erro ao remover o banco de dados";
+            return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Banco de dados removido";
+            return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+        }
+    }
+
+    public function databaseRevokeUser($id, $iddb,$user){
+        $database = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases/'.$iddb.'/grant',['id' => $user])->json();
+        if(isset($database['message'])){
+            $status = "Erro ao revogar o acesso do usuário";
+            return redirect()->route('database.show', ['id' => $id, 'iddb' => $iddb])->with('status', $status);
+        }else{
+            $status = "Acesso revogado";
+            return redirect()->route('database.show', ['id' => $id, 'iddb' => $iddb])->with('status', $status);
+        }
+    }
+
+    public function databaseCreateUser($id){
+        return view("database.create_user");
+    }
+
+    public function databaseStoreUser($id, Request $request){
+        $data = $this->validatorDatabaseUser($request);
+
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databaseusers',['username' => $data['username'], 'password' => $data['password']])->json();
+
+        $status = (!isset($user['errors'])) ? "Usuário criado" : "Erro ao cadastrar usuário";
+        return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function databaseUpdateUser($id, $idus, Request $request){
+        $data = $this->validatorDatabasePassword($request);
+
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->patch(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databaseusers/'.$idus,['password' => $data['password']])->json();
+
+        $status = (!isset($user['errors'])) ? "Senha atualizada" : "Erro ao atualizar senha";
+        return redirect()->route('database.index', ['id' => $id])->with('status', $status);    
+    }
+
+    public function databaseDestroyUser($id, $idus){
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databaseusers/'.$idus)->json();
+        if(isset($use['message'])){
+            $status = "Erro ao remover o usuário";
+            return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Usuário removido";
+            return redirect()->route('database.index', ['id' => $id])->with('status', $status);
+        }
+    }
+
+    public function percCalc($total,$number){
+        $diff = $total - $number;
+        return (int)round($diff/$total*100);
+    }
+
     protected function validator($request)
     {
         return $request->validate([
             'server' => ['required'],
             'subscription' => ['required'],
             'user' => ''
+        ]);
+    }
+
+    protected function validatorWebApp($request)
+    {
+        return $request->validate([
+            'user-check' => '',
+            'user' => ['required'],
+            'server' => '',
+            'name' => ['required'],
+            'domain' => ['required'],
+            'stack' => ['required'],
+            'stackmode' => ['required']
+        ]);
+    }
+
+    protected function validatorWebAppScript($request)
+    {
+        return $request->validate([
+            'script' => ['required'],
+        ]);
+    }
+
+    protected function validatorDatabase($request)
+    {
+        return $request->validate([
+            'name' => ['required'],
+        ]);
+    }
+
+    protected function validatorDatabaseUser($request)
+    {
+        return $request->validate([
+            'username' => ['required','min:5'],
+            'password' => ['required', 'confirmed']
+        ]);
+    }
+
+    protected function validatorDatabasePassword($request)
+    {
+        return $request->validate([
+            'password' => ['required', 'confirmed']
+        ]);
+    }
+
+    protected function validatorDatabaseAttach($request)
+    {
+        return $request->validate([
+            'username' => ['required']
         ]);
     }
 }

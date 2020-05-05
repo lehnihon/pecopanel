@@ -48,7 +48,6 @@
                                         Stack
                                     </th>
                                     <th>
-                                        Padrão
                                     </th>
                                 </thead>
                                 <tbody>
@@ -75,7 +74,7 @@
                                             {{$webapp['stackMode']}}
                                         </td>
                                         <td>
-                                            
+                                            <a href="{{ route('webapp.domain.index',['id'=> request()->id, 'idwa' => $webapp['id']]) }}"><i class="fas fa-link mr-3"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach

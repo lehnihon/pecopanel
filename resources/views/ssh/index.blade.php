@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'database.index'
+    'elementActive' => 'ssh.index'
 ])
 
 @section('content')
@@ -8,38 +8,23 @@
         <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}">Servidores</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('database.index',request()->id) }}">Bancos de dados</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+                <li class="breadcrumb-item active" aria-current="page">Chave SSH</li>
             </ol>
-        </nav>    
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header ">
-                        <h3 class="card-title">{{$database['name']}}</h3>
-                        <p class="card-category">#{{$database['id']}}</p>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th>Collation</th>
-                                    <td>{{$database['collation']}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Data</th>
-                                    <td>{{$database['created_at']}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
+        </nav>        
+        <div class="row">   
+            <div class="col-md-12">
                 <div class="card ">
                     <div class="card-header">
-                        <h5 class="card-title">Usuários</h5>
-                        <p class="card-category">Usuários vinculados</p>           
+                        <div class="d-flex">
+                            <div>
+                                <h5 class="card-title">Chave SSH</h5>
+                                <p class="card-category">Lista dos chaves ssh.</p>
+                            </div>
+                            <div class="ml-auto">
+                                <a href="{{ route('ssh.create',request()->id) }}" class="btn btn-success"><i class="mr-1 fas fa-key"></i> Criar Chave</a>
+                            </div>                         
+                            
+                        </div>            
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -49,7 +34,10 @@
                                         #
                                     </th>
                                     <th>
-                                        Nome
+                                        Rótulo
+                                    </th>
+                                    <th>
+                                        Usuário
                                     </th>
                                     <th>
                                         Data
@@ -57,19 +45,24 @@
                                     <th></th>
                                 </thead>
                                 <tbody>
-                                    @foreach ($users as $user)   
+                                    @foreach ($sshs as $ssh)   
                                     <tr>
                                         <td>
-                                            {{$user['id']}}
+                                            {{$ssh['id']}}
                                         </td>
                                         <td>
-                                            {{$user['username']}}
+                                            {{$ssh['label']}}
                                         </td>
                                         <td>
-                                            {{$user['created_at']}}
+                                            <a href="{{route('suser.show',['id' => request()->id, 'user' => $ssh['user_id']])}}">
+                                                {{$ssh['user_id']}}
+                                            </a>
                                         </td>
                                         <td>
-                                            <a class="database-remove-user" href="{{ route('database.revoke.user',['id'=> request()->id, 'iddb' => $database['id'] , 'user' => $user['id']]) }}"><i class="fas fa-unlink"></i></a>
+                                            {{$ssh['created_at']}}
+                                        </td>
+                                        <td>
+                                            <a class="database-remove-user" href="{{ route('suser.destroy',['id'=> request()->id, 'idus' => $ssh['id']]) }}"><i class="fas fa-trash-alt"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -81,6 +74,7 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
@@ -100,9 +94,9 @@
     });
 @endif
 
-$('.database-remove-user').on('click',function(e){
+$('.database-remove').on('click',function(e){
     e.preventDefault();
-    if(confirm('Tem certeza que quer revogar o acesso deste usuário?')){
+    if(confirm('Tem certeza que quer remover este banco de dados?')){
         window.location.href = $(this).attr('href');
     }
 });

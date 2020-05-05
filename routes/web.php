@@ -64,6 +64,18 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('{id}/database/{idus}/update-user','ServerController@databaseUpdateUser')->name('database.update.user');
 		Route::get('{id}/database/{idus}/destroy-user','ServerController@databaseDestroyUser')->name('database.destroy.user');
 		Route::get('/{id}/create','ServerController@create')->name('server.create');
+		Route::get('/{id}/log/{pag}','ServerController@log')->name('log.index');
+		Route::get('/{id}/service','ServerController@service')->name('service.index');
+		Route::get('/{id}/security','ServerController@security')->name('security.index');
+		Route::get('/{id}/ssh','ServerController@ssh')->name('ssh.index');
+		Route::get('/{id}/ssh/create','ServerController@sshCreate')->name('ssh.create');
+		Route::post('/{id}/ssh/store','ServerController@sshStore')->name('ssh.store');
+		Route::get('/{id}/user','ServerController@user')->name('suser.index');
+		Route::get('{id}/user/create','ServerController@userCreate')->name('suser.create');
+		Route::post('/{id}/user/store','ServerController@userStore')->name('suser.store');
+		Route::get('/{id}/user/{user}','ServerController@userShow')->name('suser.show');
+		Route::get('/{id}/user/{idus}/update','ServerController@userUpdate')->name('suser.update');
+		Route::get('/{id}/user/{idus}/destroy','ServerController@userDestroy')->name('suser.destroy');
 		Route::get('/{id}/webapp','ServerController@webApp')->name('webapp.index');
 		Route::post('{id}/webapp','ServerController@webAppStore')->name('webapp.store');
 		Route::get('/{id}/webapp/create','ServerController@webAppCreate')->name('webapp.create');
@@ -72,6 +84,9 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('/{id}/webapp/{idwa}/default','ServerController@webAppDefault')->name('webapp.default');
 		Route::get('/{id}/webapp/{idwa}/destroy','ServerController@webAppDestroy')->name('webapp.destroy');
 		Route::post('/{id}/webapp/{idwa}/script','ServerController@webAppScript')->name('webapp.script');
+		Route::get('/{id}/webapp/{idwa}/domain','ServerController@webAppDomain')->name('webapp.domain.index');
+		Route::post('/{id}/webapp/{idwa}/domain/store','ServerController@webAppDomainStore')->name('webapp.domain.store');
+		Route::get('/{id}/webapp/{idwa}/domain/{domain}','ServerController@webAppDomainDestroy')->name('webapp.domain.destroy');
 		Route::get('/{id}/webapp/{idwa}/script/{script}','ServerController@webAppScriptDestroy')->name('webapp.script.destroy');
 		Route::get('/','ServerController@index')->name('server.index');
 		Route::get('/list','ServerController@list')->name('server.list');

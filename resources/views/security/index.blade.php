@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'database.index'
+    'elementActive' => 'ssh.index'
 ])
 
 @section('content')
@@ -8,7 +8,7 @@
         <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}">Servidores</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Bancos de dados</li>
+                <li class="breadcrumb-item active" aria-current="page">Chave SSH</li>
             </ol>
         </nav>        
         <div class="row">   
@@ -17,69 +17,11 @@
                     <div class="card-header">
                         <div class="d-flex">
                             <div>
-                                <h5 class="card-title">Bancos de dados</h5>
-                                <p class="card-category">Lista de bancos de dados</p>
+                                <h5 class="card-title">Chave SSH</h5>
+                                <p class="card-category">Lista dos chave ssh.</p>
                             </div>
                             <div class="ml-auto">
-                                <a href="{{ route('database.create',request()->id) }}" class="btn btn-success"><i class="fas fa-database mr-1"></i> Criar Banco</a>
-                            </div>                         
-                            
-                        </div>            
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead class=" text-primary">
-                                    <th>
-                                        #
-                                    </th>
-                                    <th>
-                                        Nome
-                                    </th>
-                                    <th>
-                                        Data
-                                    </th>
-                                    <th></th>
-                                </thead>
-                                <tbody>
-                                    @foreach ($databases as $database)   
-                                    <tr>
-                                        <td>
-                                            <a href="{{ route('database.show',['id'=> request()->id, 'iddb' => $database['id']]) }}">
-                                                {{$database['id']}}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('database.show',['id'=> request()->id, 'iddb' => $database['id']]) }}">
-                                                {{$database['name']}}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {{$database['created_at']}}
-                                        </td>
-                                        <td>
-                                            <a class="database-attach" href="{{ route('database.attach',['id'=> request()->id, 'iddb' => $database['id']]) }}" data-toggle="modal" data-target="#modalAttach"><i class="fas fa-link mr-3"></i></a>
-                                            <a class="database-remove" href="{{ route('database.destroy',['id'=> request()->id, 'iddb' => $database['id']]) }}"><i class="fas fa-trash-alt"></i></a>         
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-12">
-                <div class="card ">
-                    <div class="card-header">
-                        <div class="d-flex">
-                            <div>
-                                <h5 class="card-title">Usuários</h5>
-                                <p class="card-category">Você pode vincular esses usuários a seus bancos de dados.</p>
-                            </div>
-                            <div class="ml-auto">
-                                <a href="{{ route('database.create.user',request()->id) }}" class="btn btn-success"><i class="fas fa-user mr-1"></i> Criar Usuário</a>
+                                <a href="{{ route('suser.create',request()->id) }}" class="btn btn-success"><i class="fas fa-user mr-1"></i> Criar Usuário</a>
                             </div>                         
                             
                         </div>            
@@ -112,8 +54,8 @@
                                             {{$user['created_at']}}
                                         </td>
                                         <td>
-                                            <a class="mr-3 database-update-user" href="{{ route('database.update.user',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>
-                                            <a class="database-remove-user" href="{{ route('database.destroy.user',['id'=> request()->id, 'idus' => $user['id']]) }}"><i class="fas fa-trash-alt"></i></a>
+                                            <a class="mr-3 database-update-user" href="{{ route('suser.update',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>
+                                            <a class="database-remove-user" href="{{ route('suser.destroy',['id'=> request()->id, 'idus' => $user['id']]) }}"><i class="fas fa-trash-alt"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -165,40 +107,6 @@
         </form>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="modalAttach" tabindex="-1" role="dialog" >
-        <form action="#" method="GET" class="modal-dialog action-attach-user" role="document">
-            @csrf
-
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Vincular usuário</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="col-sm-12 form-group{{ $errors->has('username') ? ' has-danger' : '' }}">
-                    <label for="username">Usuário</label>
-                    <select name="username" id="username" class="form-control">
-                        <option value="">Selecione</option>
-                        @foreach($users as $user)
-                            <option {{ old('username') == $user['id'] ? 'selected' : '' }} value="{{$user['id']}}">{{$user['username']}}</option>
-                        @endforeach
-                    </select>
-                    @if($errors->has('username'))
-                        <span class="invalid-feedback" style="display: block;" role="alert">
-                            {{ $errors->first('username') }}
-                        </span>
-                    @endif
-                </div>
-            </div>
-            <div class="modal-footer">
-                <input type="submit" class="btn btn-primary" value="Vincular">
-            </div>
-            </div>
-        </form>
-    </div>
 @endsection
 
 @push('scripts')

@@ -1,12 +1,14 @@
 <div class="sidebar" data-color="black" data-active-color="danger">
     <div class="logo">
+        <!--
         <a href="http://www.creative-tim.com" class="simple-text logo-mini">
             <div class="logo-image-small">
                 <img src="{{ asset('paper') }}/img/logo-small.png">
             </div>
         </a>
-        <a href="http://www.creative-tim.com" class="simple-text logo-normal">
-            {{ __('Creative Tim') }}
+        -->
+        <a href="#" class="simple-text logo-normal">
+            {{ __(auth()->user()->name) }}
         </a>
     </div>
     <div class="sidebar-wrapper">
@@ -29,6 +31,27 @@
                 <a href="{{ route('database.index',request()->id) }}">
                 <i class="fas fa-database"></i>
                     <p>{{ __('BANCO DE DADOS') }}</p>
+                </a>
+            </li>
+
+            <li class="{{ $elementActive == 'suser.index' ? 'active' : '' }}">
+                <a href="{{ route('suser.index',request()->id) }}">
+                <i class="fas fa-users"></i>
+                    <p>{{ __('USUÁRIOS') }}</p>
+                </a>
+            </li>
+
+            <li class="{{ $elementActive == 'ssh.index' ? 'active' : '' }}">
+                <a href="{{ route('ssh.index',['id' =>request()->id,'pag' => 1]) }}">
+                <i class="fas fa-key"></i>
+                    <p>{{ __('CHAVE SSH') }}</p>
+                </a>
+            </li>
+
+            <li class="{{ $elementActive == 'log.index' ? 'active' : '' }}">
+                <a href="{{ route('log.index',['id' =>request()->id,'pag' => 1]) }}">
+                <i class="far fa-list-alt"></i>
+                    <p>{{ __('LOGS') }}</p>
                 </a>
             </li>
 

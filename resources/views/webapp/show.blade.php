@@ -93,6 +93,10 @@
                                     <td>{{$webapp['type']}}</td>
                                 </tr>
                                 <tr>
+                                    <th>Script</th>
+                                    <td>{{isset($wascript['message'])?'Nenhum':$wascript['realName']}}</td>
+                                </tr>
+                                <tr>
                                     <th>Stack</th>
                                     <td>{{$webapp['stack']}}</td>
                                 </tr>
@@ -103,6 +107,11 @@
                                 <tr>
                                     <th>Data de Criação</th>
                                     <td>{{$webapp['created_at']}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                    <a href="{{ route('webapp.domain.index',['id'=> request()->id, 'idwa' => request()->idwa]) }}"><i class="fas fa-link mr-3"></i> Ver domínios vinculados</a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

@@ -140,6 +140,36 @@ class ServerController extends Controller
         return view("webapp.index",['webapps' => $webapps['data']]);
     }
 
+    public function webAppDomain($id, $idwa){
+        $domains = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/domains')->json();
+        return view("domains.index",['domains' => $domains['data']]);
+    }
+
+    public function webAppDomainStore($id, $idwa, Request $request){;
+        $data = $this->validatorDomain($request);
+
+        $domain = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/domains',['name' => $data['domain']])->json();
+
+        $status = (!isset($domain['errors'])) ? "Domínio vinculado" : "Erro ao vincular domínio";
+        return redirect()->route('webapp.domain.index', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+
+    }
+
+    public function webAppDomainDestroy($id, $idwa,$domain){
+        $domain = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/domains/'.$domain)->json();
+
+        if(isset($domain['message'])){
+            $status = "Erro ao desvincular o domínio";
+            return redirect()->route('webapp.domain.index', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }else{
+            $status = "Domínio desvinculado";
+            return redirect()->route('webapp.domain.index', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }
+    }
+
     public function webAppCreate($id){
         $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users')->json();
@@ -194,6 +224,7 @@ class ServerController extends Controller
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa)->json();
         $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer')->json();
+
         return view("webapp.show",['webapp' => $webapp, 'wascript' => $wascript]);
     }
 
@@ -262,6 +293,58 @@ class ServerController extends Controller
         }
     }
 
+    public function user($id){
+        $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users')->json();
+
+        return view("suser.index",['users' => $users['data']]);
+    }
+
+
+    public function userCreate($id){
+        return view("suser.create");
+    }
+
+    public function userShow($id,$user){
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users/'.$user)->json();
+
+        return view("suser.show",['user' => $user]);
+    }
+
+    public function userStore($id, Request $request){
+        $data = $this->validatorDatabaseUser($request);
+
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users',['username' => $data['username'], 'password' => $data['password']])->json();
+
+        $status = (!isset($user['errors'])) ? "Usuário criado" : "Erro ao cadastrar usuário";
+        return redirect()->route('suser.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function userUpdate($id, $idus, Request $request){
+        $data = $this->validatorDatabasePassword($request);
+
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->patch(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users/'.$idus,['password' => $data['password']])->json();
+
+        $status = (!isset($user['errors'])) ? "Senha atualizada" : "Erro ao atualizar senha";
+        return redirect()->route('suser.index', ['id' => $id])->with('status', $status);    
+    }
+
+    public function userDestroy($id, $idus){
+        $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users/'.$idus)->json();
+        if(isset($use['message'])){
+            $status = "Erro ao remover o usuário";
+            return redirect()->route('suserindex', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Usuário removido";
+            return redirect()->route('suser.index', ['id' => $id])->with('status', $status);
+        }
+    }
+
+
     public function database($id){
         $databases = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases')->json();
@@ -286,7 +369,7 @@ class ServerController extends Controller
         $database = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databases/'.$iddb.'/grant',['id' => $data['username']])->json();
 
-        $status = (!isset($database['errors'])) ? "Usuário anexado ao banco de dados" : "Erro ao anexar usuário";
+        $status = (!isset($database['errors'])) ? "Usuário vinculado ao banco de dados" : "Erro ao vincular usuário";
         return redirect()->route('database.index', ['id' => $id])->with('status', $status);
     }
 
@@ -364,6 +447,41 @@ class ServerController extends Controller
         }
     }
 
+    public function security($id){
+        $logs = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/logs?='.$pag)->json();
+
+        return view("security.index",['ssh' => $logs['data']]);
+    }
+
+    public function service($id){
+        $logs = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/logs?='.$pag)->json();
+
+        return view("service.index",['ssh' => $logs['data']]);
+    }
+
+    public function ssh($id){
+        $ssh = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/sshcredentials')->json();
+
+        return view("ssh.index",['sshs' => $ssh['data']]);
+    }
+
+    public function sshCreate($id){
+        return view("ssh.create");
+    }
+
+    public function log($id,$pag = 1){
+        $logs = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/logs?page='.$pag)->json();
+        $initpage = 0;
+        if($logs['meta']['pagination']['current_page']-5 > 0){
+            $initpage = $logs['meta']['pagination']['current_page']-5;
+        }
+        return view("logs.index",['logs' => $logs['data'],'pagination' => $logs['meta']['pagination'],'initpage' => $initpage]);
+    }
+
     public function percCalc($total,$number){
         $diff = $total - $number;
         return (int)round($diff/$total*100);
@@ -426,4 +544,12 @@ class ServerController extends Controller
             'username' => ['required']
         ]);
     }
+
+    protected function validatorDomain($request)
+    {
+        return $request->validate([
+            'domain' => ['required'],
+        ]);
+    }
+
 }

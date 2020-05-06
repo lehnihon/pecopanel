@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'server.list'
+    'elementActive' => 'connect.index'
 ])
 
 @section('content')
@@ -13,7 +13,7 @@
                         <p class="card-category">Associe o servidor</p>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('server.store') }}" method="POST">
+                        <form action="{{ route('subscription.connect.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="user" value="{{$user}}">
                             <div class="row">

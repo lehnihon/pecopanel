@@ -26,56 +26,6 @@ class ServerController extends Controller
         return view("server.index",['servers' => $servers]);
     }
 
-    public function list(){
-        $users = User::with('role')->orderBy('email', 'asc')->get();
-                
-        return view("server.list",['users' => $users]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create($id)
-    {
-        $servers = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers',[])->json();
-        $subscriptions = Http::withBasicAuth(env('APP_VINDI_TOKEN', false), '')
-            ->get(env('APP_VINDI_URL', false).'/subscriptions',[
-                'query' => 'customer_id:'.$id.' status:active',
-                'sort_order' => 'asc'
-            ])->json();
-        return view("server.create",array_merge(['servers' => $servers['data'], 'user' => $id], $subscriptions));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $data = $this->validator($request);
-
-        $server = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$data['server'])->json();
-        $user = User::where('vindi_id',$data['user'])->first();
-
-        $status = (Server::create([
-            'server_ip' => $server['ipAddress'],
-            'server_name' => $server['name'],
-            'server_provider' => $server['provider'],
-            'server_os' => $server['os'],
-            'subscription_id' => $data['subscription'],
-            'server_id' => $data['server'],
-            'user_id' => $user->id
-        ])) ? "Servidor associado!" : "Erro ao associar o servidor";
-
-        return redirect('server')->with('status', $status);
-    }
-
     /**
      * Display the specified resource.
      *

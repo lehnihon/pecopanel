@@ -47,11 +47,15 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::prefix('subscription')->group(function () {
 		Route::get('/','SubscriptionController@index')->name('subscription.index');
 		Route::get('/create','SubscriptionController@create')->name('subscription.create');
-		Route::get('/{id}','SubscriptionController@show')->name('subscription.show');
 		Route::post('/','SubscriptionController@store')->name('subscription.store');
+		Route::get('/connect','SubscriptionController@connect')->name('subscription.connect');
+		Route::get('/connect/{id}/create','SubscriptionController@connectCreate')->name('subscription.connect.create');
+		Route::post('/connect','SubscriptionController@connectStore')->name('subscription.connect.store');
+		Route::get('/{id}','SubscriptionController@show')->name('subscription.show');
 	});
 
 	Route::prefix('server')->group(function () {
+		Route::get('/{id}','ServerController@show')->name('server.show');
 		Route::get('/{id}/database','ServerController@database')->name('database.index');
 		Route::get('/{id}/database/{iddb}/show','ServerController@databaseShow')->name('database.show');	
 		Route::get('/{id}/database/create','ServerController@databaseCreate')->name('database.create');
@@ -89,10 +93,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post('/{id}/webapp/{idwa}/domain/store','ServerController@webAppDomainStore')->name('webapp.domain.store');
 		Route::get('/{id}/webapp/{idwa}/domain/{domain}','ServerController@webAppDomainDestroy')->name('webapp.domain.destroy');
 		Route::get('/{id}/webapp/{idwa}/script/{script}','ServerController@webAppScriptDestroy')->name('webapp.script.destroy');
-		Route::get('/','ServerController@index')->name('server.index');
-		Route::get('/list','ServerController@list')->name('server.list');
-		Route::get('/{id}','ServerController@show')->name('server.show');
-		Route::post('/','ServerController@store')->name('server.store');
+		
 	});
 	
 	Route::get('{page}', ['as' => 'page.index', 'uses' => 'PageController@index']);

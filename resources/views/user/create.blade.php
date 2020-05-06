@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'user.create'
+    'elementActive' => 'connect.index'
 ])
 
 @section('content')

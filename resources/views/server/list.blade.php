@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'server.list'
+    'elementActive' => 'connect.index'
 ])
 
 @section('content')
@@ -59,7 +59,7 @@
                                             {{$user->created_at}}
                                         </td>
                                         <td>
-                                            <a href="{{ route('server.create',$user->vindi_id) }}">
+                                            <a href="{{ route('subscription.connect.create',$user->vindi_id) }}">
                                                 <i class="nc-icon nc-simple-add"></i>
                                             </a>
                                         </td>

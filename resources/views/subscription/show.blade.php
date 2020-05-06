@@ -4,7 +4,13 @@
 ])
 
 @section('content')
-    <div class="content">       
+    <div class="content">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('subscription.index') }}">Assinaturas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalhes</li>
+            </ol>
+        </nav>       
         <div class="row">
             <div class="col-md-6">
                 <div class="card ">
@@ -29,11 +35,11 @@
                                 </tr>
                                 <tr>
                                     <th>DATA</th>
-                                    <td>{{$subscriptions[0]['created_at']}}</td>
+                                    <td>{{ date("d/m/Y H:i:s", strtotime($subscriptions[0]['created_at']))}}</td>
                                 </tr>
                                 <tr>
                                     <th>VIGÊNCIA</th>
-                                    <td>{{$subscriptions[0]['next_billing_at']}}</td>
+                                    <td>{{ date("d/m/Y H:i:s", strtotime($subscriptions[0]['next_billing_at']))}}</td>
                                 </tr>
                                 <tr>
                                     <th>SERVER</th>
@@ -88,7 +94,7 @@
                                             {{$bill['status']}}
                                         </td>
                                         <td>
-                                            {{$bill['created_at']}}
+                                        {{ date("d/m/Y H:i:s", strtotime($bill['created_at']))}}
                                         </td>
                                         <td>
                                             <a target="_blank" href="{{$bill['url']}}">

@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'user.index'
+    'elementActive' => 'connect.index'
 ])
 
 @section('content')
@@ -56,10 +56,13 @@
                                             {{$user->role->name}}
                                         </td>
                                         <td>
-                                            {{$user->created_at}}
+                                            {{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}
                                         </td>
                                         <td>
-                                            <a href="{{ route('user.edit',$user->id) }}">
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Associar usuário" class="mr-2" href="{{ route('subscription.connect.create',$user->vindi_id) }}">
+                                                <i class="nc-icon nc-simple-add"></i>
+                                            </a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Editar usuário" href="{{ route('user.edit',$user->id) }}">
                                                 <i class="nc-icon nc-single-copy-04"></i>
                                             </a>
                                         </td>
@@ -91,5 +94,6 @@
         }
     });
 @endif
+$('[data-toggle="popover"]').popover()
 </script>
 @endpush

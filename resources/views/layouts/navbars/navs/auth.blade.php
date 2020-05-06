@@ -42,6 +42,20 @@
                         <a class="dropdown-item" onclick="document.getElementById('formLogOut').submit();">{{ __('Log out') }}</a>  
                     </div>
                 </li>
+                @if(auth()->user()->role->id == '1')
+                <li class="nav-item btn-rotate dropdown {{ $elementActive == 'connect.index' ? 'active' : '' }}">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink3"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="nc-icon nc-settings-gear-65"></i>
+                        <p>
+                            <span class="d-lg-none d-md-block">{{ __('Administração') }}</span>
+                        </p>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink3">
+                        <a class="dropdown-item" href="{{ route('user.index') }}">{{ __('Administrar Usuários') }}</a>
+                    </div>
+                </li>
+                @endif
             </ul>
         </div>
     </div>

@@ -28,7 +28,7 @@
                                 </tr>
                                 <tr>
                                     <th>Data</th>
-                                    <td>{{$database['created_at']}}</td>
+                                    <td>{{ date("d/m/Y H:i:s", strtotime($database['created_at']))}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -66,7 +66,7 @@
                                             {{$user['username']}}
                                         </td>
                                         <td>
-                                            {{$user['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}
                                         </td>
                                         <td>
                                             <a class="database-remove-user" href="{{ route('database.revoke.user',['id'=> request()->id, 'iddb' => $database['id'] , 'user' => $user['id']]) }}"><i class="fas fa-unlink"></i></a>

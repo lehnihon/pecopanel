@@ -15,6 +15,11 @@
                 {{ session('password_status') }}
             </div>
         @endif
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Perfil</li>
+            </ol>
+        </nav>
         <div class="row">
             <div class="col-md-4">
                 <div class="card card-user">
@@ -261,11 +266,11 @@
                                 <label class="col-md-3 col-form-label">{{ __('Novo Número') }}</label>
                                 <div class="col-md-9">
                                     <div>
-                                        <input type="text" name="card_number" class="form-control" placeholder="Digite o número do seu cartão">
+                                        <input type="text" name="card_number" class="form-control card-number" placeholder="Digite o número do seu cartão">
                                     </div>
-                                    @if ($errors->has('card_number'))
+                                    @if($errors->has('card_number'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            O número do cartão é obrigatório
+                                            {{ $errors->first('card_number') }}
                                         </span>
                                     @endif
                                 </div>
@@ -276,9 +281,9 @@
                                     <div>
                                         <input type="text" name="holder_name" class="form-control" placeholder="Digite o nome impresso no cartão">
                                     </div>
-                                    @if ($errors->has('holder_name'))
+                                    @if($errors->has('holder_name'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            O nome é obrigatório
+                                            {{ $errors->first('holder_name') }}
                                         </span>
                                     @endif
                                 </div>
@@ -288,11 +293,11 @@
                                 <label class="col-md-3 col-form-label">{{ __('Nova Validade') }}</label>
                                 <div class="col-md-9">
                                     <div>
-                                        <input type="text" name="card_expiration" class="form-control" placeholder="Digite a validade do seu cartão">
+                                        <input type="text" name="card_expiration" class="form-control dt-val" placeholder="Digite a validade do seu cartão">
                                     </div>
-                                    @if ($errors->has('card_expiration'))
+                                    @if($errors->has('card_expiration'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            A data de validade é obrigatória
+                                            {{ $errors->first('card_expiration') }}
                                         </span>
                                     @endif
                                 </div>
@@ -301,11 +306,11 @@
                                 <label class="col-md-3 col-form-label">{{ __('Novo Código') }}</label>
                                 <div class="col-md-9">
                                     <div>
-                                        <input type="text" name="card_cvv" class="form-control" placeholder="Digite o código de 3 dígitos do seu cartão">
+                                        <input type="text" name="card_cvv" class="form-control cvv" placeholder="Digite o código de 3 dígitos do seu cartão">
                                     </div>
-                                    @if ($errors->has('card_cvv'))
+                                    @if($errors->has('card_cvv'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            O código de segurança é obrigatório
+                                            {{ $errors->first('card_cvv') }}
                                         </span>
                                     @endif
                                 </div>
@@ -348,3 +353,12 @@
         </div>
     </div>
 @endsection
+
+
+@push('scripts')
+    <script>
+        $('.card-number').mask("0000000000000000", {clearIfNotMatch: true});
+        $('.dt-val').mask("00/0000", {clearIfNotMatch: true});
+        $('.cvv').mask("000", {clearIfNotMatch: true});
+    </script>
+@endpush

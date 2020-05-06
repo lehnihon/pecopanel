@@ -4,39 +4,36 @@
 ])
 
 @section('content')
-    <div class="content">       
+    <div class="content">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('subscription.index') }}">Assinaturas</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Criar</li>
+            </ol>
+        </nav>
         <div class="row">
-            <div class="col-md-12">
-                <div class="card ">
-                    <div class="card-header ">
-                        <h5 class="card-title">Assinaturas</h5>
-                        <p class="card-category">Escolha uma assinatura</p>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($plans as $plan)
-                                <div class="col-sm-4 plan-option" data-id="{{$plan['id']}}">
-                                    <div class="name">
-                                        {{$plan['name']}}
-                                    </div>
-                                    <div class="description">
-                                        {{$plan['description']}}
-                                    </div>
-                                    <div class="value">
-                                        R${{$plan['total']}}
-                                    </div>
-                                </div>
-                            @endforeach
-                            <div class="col-sm-12">
-                                <button class="btn btn-info choose-plan">Escolher</button>
-                            </div>
+            @foreach($plans as $plan)
+                <div class="col-md-4">
+                    <div class="card plan-option" data-id="{{$plan['id']}}">
+                        <div class="card-header text-center">
+                            <h5 class="card-title">{{$plan['name']}}</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <h3>R${{$plan['total']}}</h3>
+                            
+                        </div>
+                        <div class="card-footer">
+                            {!!$plan['description']!!}
                         </div>
                     </div>
-                    <form id="form-plan" action="{{ route('subscription.store') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="plan" class="plan">
-                    </form>
                 </div>
+            @endforeach
+            <form id="form-plan" action="{{ route('subscription.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="plan" class="plan">
+            </form>
+            <div class="col-sm-12">
+                <button class="btn btn-info choose-plan">Assinar</button>
             </div>
         </div>
     </div>
@@ -51,7 +48,11 @@
             $('.plan').val(id);
         })
         $('.choose-plan').on('click',function(e){
-            $('#form-plan').submit();
+            if($('.plan').val() == ''){
+                alert('Selecione um plano!');
+            }else{
+                $('#form-plan').submit();
+            }   
         });
     </script>
 @endpush

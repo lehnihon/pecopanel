@@ -26,7 +26,7 @@
                             <div class="row">
                                 <div class="col-sm-6 form-group{{ $errors->has('name') ? ' has-danger' : '' }}">
                                     <label for="name">Nome</label>
-                                    <input name="name" id="name" type="text" class="form-control" placeholder="Digite o nome" value="{{ old('name') }}" autofocus>
+                                    <input name="name" id="name" type="text" class="form-control mask-name" placeholder="Digite o nome" value="{{ old('name') }}" autofocus>
                                     @if ($errors->has('name'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
                                             {{ $errors->first('name') }}
@@ -47,5 +47,12 @@
 
 @push('scripts')
     <script>
+        $('.mask-name').mask('ZZZZZZZZZZZZZZZZZZZZ', {
+            translation: {
+                'Z': {
+                pattern: /[a-zA-Z0-9-_]/, optional: true
+                }
+            }
+        });
     </script>
 @endpush

@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'suser.index'
+    'elementActive' => 'ssh.index'
 ])
 
 @section('content')
@@ -8,7 +8,7 @@
         <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}">Servidores</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('suser.index',request()->id) }}">Usuários</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('ssh.index',request()->id) }}">Chave SSH</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Criar</li>
             </ol>
         </nav>         
@@ -16,8 +16,8 @@
             <div class="col-md-12">
                 <div class="card ">
                     <div class="card-header ">
-                        <h5 class="card-title">Usuários</h5>
-                        <p class="card-category">Insira os campos para criar um novo usuário</p>
+                        <h5 class="card-title">Chave SSH</h5>
+                        <p class="card-category">Insira os campos para criar uma nova chave ssh</p>
                     </div>
                     <div class="card-body">
                         <form action="{{ route('ssh.store',request()->id) }}" method="POST">
@@ -33,21 +33,27 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="col-sm-6 form-group{{ $errors->has('password') ? ' has-danger' : '' }}">
-                                    <label for="password">Senha</label>
-                                    <input name="password" id="password" type="password" class="form-control" placeholder="Digite a senha">
-                                    @if ($errors->has('password'))
+                                <div class="col-sm-6 form-group{{ $errors->has('user') ? ' has-danger' : '' }}">
+                                    <label for="user">Usuário</label>
+                                    <select name="user" id="user" class="form-control">
+                                        <option disabled value="">Selecione</option>
+                                        @foreach($users as $user)
+                                            <option {{ old('user') == $user['username'] ? 'selected' : '' }} value="{{$user['username']}}">{{$user['username']}}</option>
+                                        @endforeach
+                                    </select>
+                                    @if($errors->has('user'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            {{ $errors->first('password') }}
+                                            {{ $errors->first('user') }}
                                         </span>
                                     @endif
                                 </div>
-                                <div class="col-sm-6 form-group{{ $errors->has('password_confirmation') ? ' has-danger' : '' }}">
-                                    <label for="password_confirmation">Confirmar Senha</label>
-                                    <input name="password_confirmation" id="password_confirmation" type="password" class="form-control" placeholder="Confirme a senha">
-                                    @if ($errors->has('password_confirmation'))
+                                <div class="col-sm-12 form-group{{ $errors->has('publick') ? ' has-danger' : '' }}">
+                                    <label for="publick">Chave Pública</label>
+                                    <textarea name="publick" id="publick" class="form-control" placeholder="Digita sua chave pública">
+                                    </textarea>
+                                    @if ($errors->has('publick'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            {{ $errors->first('password_confirmation') }}
+                                            {{ $errors->first('publick') }}
                                         </span>
                                     @endif
                                 </div>

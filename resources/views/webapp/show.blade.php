@@ -106,7 +106,7 @@
                                 </tr>
                                 <tr>
                                     <th>Data de Criação</th>
-                                    <td>{{$webapp['created_at']}}</td>
+                                    <td>{{ date("d/m/Y H:i:s", strtotime($webapp['created_at']))}}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">

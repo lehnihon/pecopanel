@@ -55,7 +55,7 @@
                                             </a>
                                         </td>
                                         <td>
-                                            {{$database['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($database['created_at']))}}
                                         </td>
                                         <td>
                                             <a class="database-attach" href="{{ route('database.attach',['id'=> request()->id, 'iddb' => $database['id']]) }}" data-toggle="modal" data-target="#modalAttach"><i class="fas fa-link mr-3"></i></a>
@@ -109,7 +109,7 @@
                                             {{$user['username']}}
                                         </td>
                                         <td>
-                                            {{$user['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}
                                         </td>
                                         <td>
                                             <a class="mr-3 database-update-user" href="{{ route('database.update.user',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>

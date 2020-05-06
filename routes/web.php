@@ -70,6 +70,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('/{id}/ssh','ServerController@ssh')->name('ssh.index');
 		Route::get('/{id}/ssh/create','ServerController@sshCreate')->name('ssh.create');
 		Route::post('/{id}/ssh/store','ServerController@sshStore')->name('ssh.store');
+		Route::get('/{id}/ssh/{idssh}/destroy','ServerController@sshDestroy')->name('ssh.destroy');
 		Route::get('/{id}/user','ServerController@user')->name('suser.index');
 		Route::get('{id}/user/create','ServerController@userCreate')->name('suser.create');
 		Route::post('/{id}/user/store','ServerController@userStore')->name('suser.store');

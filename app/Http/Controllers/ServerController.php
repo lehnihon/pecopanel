@@ -171,9 +171,11 @@ class ServerController extends Controller
     }
 
     public function webAppCreate($id){
+        $php_versions = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/php/version')->json();
         $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users')->json();
-        return view("webapp.create",['server' => $id, 'users' => $users['data']]);
+        return view("webapp.create",['server' => $id, 'users' => $users['data'], 'php_versions' => $php_versions]);
     }
 
     public function webAppStore($id, Request $request){
@@ -197,7 +199,7 @@ class ServerController extends Controller
                 'domainName' => $data['domain'],
                 'stack' => $data['stack'],
                 'stackMode' => $data['stackmode'],
-                'phpVersion' => 'php73rc',
+                'phpVersion' =>  $data['php'],
                 'clickjackingProtection' => true,
                 'xssProtection' => true,
                 'mimeSniffingProtection' => true,
@@ -438,7 +440,7 @@ class ServerController extends Controller
     public function databaseDestroyUser($id, $idus){
         $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/databaseusers/'.$idus)->json();
-        if(isset($use['message'])){
+        if(isset($user['message'])){
             $status = "Erro ao remover o usuário";
             return redirect()->route('database.index', ['id' => $id])->with('status', $status);
         }else{
@@ -469,7 +471,36 @@ class ServerController extends Controller
     }
 
     public function sshCreate($id){
-        return view("ssh.create");
+        $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users')->json();
+
+        return view("ssh.create",['users' => $users['data']]);
+    }
+
+    public function sshStore($id, Request $request){
+        $data = $this->validatorSsh($request);
+
+        $ssh = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/sshcredentials',[
+                'label' => $data['label'],
+                'username' => $data['user'],
+                'publicKey' => $data['publick']
+            ])->json();
+
+        $status = (!isset($ssh['errors'])) ? "Chave SSH criada" : "Erro ao cadastrar chave ssh";
+        return redirect()->route('ssh.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function sshDestroy($id, $idssh){
+        $ssh = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/sshcredentials/'.$idssh)->json();
+        if(isset($ssh['message'])){
+            $status = "Erro ao remover o chave ssh";
+            return redirect()->route('ssh.index', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Chave ssh removida";
+            return redirect()->route('ssh.index', ['id' => $id])->with('status', $status);
+        }
     }
 
     public function log($id,$pag = 1){
@@ -503,9 +534,10 @@ class ServerController extends Controller
             'user' => ['required'],
             'server' => '',
             'name' => ['required'],
-            'domain' => ['required'],
+            'domain' => ['required','url'],
             'stack' => ['required'],
-            'stackmode' => ['required']
+            'stackmode' => ['required'],
+            'php' => ['required']
         ]);
     }
 
@@ -552,4 +584,12 @@ class ServerController extends Controller
         ]);
     }
 
+    protected function validatorSsh($request)
+    {
+        return $request->validate([
+            'label' => ['required','alpha_dash'],
+            'user' => ['required'],
+            'publick' => ['required']
+        ]);
+    }
 }

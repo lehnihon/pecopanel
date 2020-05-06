@@ -16996,3 +16996,7 @@ h6 {
   font-size: 0.875rem;
 }
 
+.plan-option :hover {
+  cursor: pointer;
+}
+

@@ -26,7 +26,7 @@
                             <div class="row">
                                 <div class="col-sm-6 form-group{{ $errors->has('name') ? ' has-danger' : '' }}">
                                     <label for="name">Nome</label>
-                                    <input name="name" id="name" type="text" class="form-control" placeholder="Digite o nome" value="{{ old('name') }}" autofocus>
+                                    <input name="name" id="name" type="text" class="form-control mask-name" placeholder="Digite o nome" value="{{ old('name') }}" autofocus>
                                     @if ($errors->has('name'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
                                             {{ $errors->first('name') }}
@@ -54,12 +54,12 @@
                                 <div class="col-sm-6 form-group{{ $errors->has('user') ? ' has-danger' : '' }}">
                                     <label for="user">Usuário</label>
                                     <select name="user" id="user" class="form-control user-select">
-                                        <option value="">Selecione</option>
+                                        <option value="" selected disabled>Selecione</option>
                                         @foreach($users as $user)
                                             <option {{ old('user') == $user['id'] ? 'selected' : '' }} value="{{$user['id']}}">{{$user['username']}}</option>
                                         @endforeach
                                     </select>
-                                    <input name="user" id="user" type="text" class="form-control user-input" placeholder="Digite o usuário" value="{{ old('user') }}">
+                                    <input name="user" id="user" type="text" class="form-control user-input mask-name" placeholder="Digite o usuário" value="{{ old('user') }}">
                                     @if($errors->has('user'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
                                             {{ $errors->first('user') }}
@@ -69,7 +69,7 @@
                                 <div class="col-sm-6 form-group{{ $errors->has('stack') ? ' has-danger' : '' }}">
                                     <label for="stack">Stack</label>
                                     <select name="stack" id="stack" class="form-control">
-                                        <option value="">Selecione</option>
+                                        <option value="" selected disabled>Selecione</option>
                                         <option {{ old('stack') == 'hybrid' ? 'selected' : '' }} value="hybrid">NGINX + Apache2 Híbrido (Você pode usar o .htaccess)</option>
                                         <option {{ old('stack') == 'nativenginx' ? 'selected' : '' }} value="nativenginx">NGINX Nativo (Você não pode usar o .htaccess, mas ele é mais rápido)</option>
                                         <option {{ old('stack') == 'customnginx' ? 'selected' : '' }} value="customnginx">NGINX Nativo + Configurações customizadas (Implementação manual do NGINX)</option>
@@ -83,13 +83,28 @@
                                 <div class="col-sm-6 form-group{{ $errors->has('stackmode') ? ' has-danger' : '' }}">
                                     <label for="stackmode">Modo Stack</label>
                                     <select name="stackmode" id="stackmode" class="form-control">
-                                        <option value="">Selecione</option>
+                                        <option value="" selected disabled>Selecione</option>
                                         <option {{ old('stackmode') == 'production' ? 'selected' : '' }} value="production">Produção</option>
                                         <option {{ old('stackmode') == 'development' ? 'selected' : '' }} value="development">Desenvolvimento</option>
                                     </select>
                                     @if($errors->has('stackmode'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
                                             {{ $errors->first('stackmode') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('php') ? ' has-danger' : '' }}">
+                                    <label for="php">Versão PHP</label>
+                                    <select name="php" id="php" class="form-control">
+                                        <option value="" selected disabled>Selecione</option>
+                                        @foreach($php_versions as $php)
+                                            <option {{ old('php') == $php ? 'selected' : '' }} value="{{$php}}">{{$php}}</option>
+                                        @endforeach
+                                    </select>
+            
+                                    @if($errors->has('php'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('php') }}
                                         </span>
                                     @endif
                                 </div>
@@ -123,5 +138,12 @@ $('.form-check-input').on('click',function(){
         $('.user-input').show('slow').prop( "disabled", false);
     }
 })
+$('.mask-name').mask('ZZZZZZZZZZZZZZZZZZZZ', {
+    translation: {
+        'Z': {
+        pattern: /[a-zA-Z0-9-_]/, optional: true
+        }
+    }
+});
 </script>
 @endpush

@@ -24,7 +24,7 @@
                             <tbody>
                                 <tr>
                                     <th>Data</th>
-                                    <td>{{$user['created_at']}}</td>
+                                    <td>{{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}</td>
                                 </tr>
                             </tbody>
                         </table>

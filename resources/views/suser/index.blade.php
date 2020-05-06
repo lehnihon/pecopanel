@@ -51,7 +51,7 @@
                                             {{$user['username']}}
                                         </td>
                                         <td>
-                                            {{$user['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}
                                         </td>
                                         <td>
                                             <a class="mr-3 database-update-user" href="{{ route('suser.update',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>

@@ -59,10 +59,10 @@
                                             </a>
                                         </td>
                                         <td>
-                                            {{$ssh['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($ssh['created_at']))}}
                                         </td>
                                         <td>
-                                            <a class="database-remove-user" href="{{ route('suser.destroy',['id'=> request()->id, 'idus' => $ssh['id']]) }}"><i class="fas fa-trash-alt"></i></a>
+                                            <a class="ssh-remove" href="{{ route('ssh.destroy',['id'=> request()->id, 'idssh' => $ssh['id']]) }}"><i class="fas fa-trash-alt"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -94,9 +94,9 @@
     });
 @endif
 
-$('.database-remove').on('click',function(e){
+$('.ssh-remove').on('click',function(e){
     e.preventDefault();
-    if(confirm('Tem certeza que quer remover este banco de dados?')){
+    if(confirm('Tem certeza que quer remover esta chave ssh?')){
         window.location.href = $(this).attr('href');
     }
 });

@@ -4,13 +4,25 @@
 ])
 
 @section('content')
-    <div class="content">       
+    <div class="content">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active" aria-current="page">Assinaturas</li>
+            </ol>
+        </nav> 
         <div class="row">
             <div class="col-md-12">
                 <div class="card ">
                     <div class="card-header ">
-                        <h5 class="card-title">Assinaturas</h5>
-                        <p class="card-category">Suas assinaturas</p>
+                        <div class="d-flex">
+                            <div>
+                                <h5 class="card-title">Assinaturas</h5>
+                                <p class="card-category">Suas assinaturas</p>
+                            </div>
+                            <div class="ml-auto">
+                                <a href="{{ route('subscription.create') }}" class="btn btn-success"><i class="nc-icon nc-spaceship mr-1"></i> Nova Assinatura</a>
+                            </div>                         
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -42,7 +54,7 @@
                                             {{$subs['plan']['name']}}
                                         </td>
                                         <td>
-                                            {{$subs['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($subs['created_at']))}}
                                         </td>
                                         <td>
                                             {{$subs['status']}}

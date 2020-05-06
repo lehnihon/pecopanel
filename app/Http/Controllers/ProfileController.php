@@ -59,7 +59,7 @@ class ProfileController extends Controller
                 "customer_id" => auth()->user()->vindi_id
             ]);
 
-        return back()->withStatus(__('Profile successfully updated.'));
+        return back()->withStatus(__('Perfil atualizado'));
     }
 
     /**
@@ -80,8 +80,8 @@ class ProfileController extends Controller
         return $request->validate([
             "holder_name" => ['required'],
             "card_expiration" => ['required'],
-            "card_number" => ['required'],
-            "card_cvv" => ['required'],
+            "card_number" => ['required', 'numeric', 'min:16'],
+            "card_cvv" => ['required', 'numeric', 'min:3'],
             "payment_company_code" => ['required']
         ]);
     }

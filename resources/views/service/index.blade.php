@@ -1,64 +1,68 @@
 @extends('layouts.app', [
     'class' => '',
-    'elementActive' => 'ssh.index'
+    'elementActive' => 'service.index'
 ])
 
 @section('content')
     <div class="content">
         <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Servidores</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Chave SSH</li>
+                <li class="breadcrumb-item active">Serviços</li>
             </ol>
         </nav>        
         <div class="row">   
             <div class="col-md-12">
                 <div class="card ">
                     <div class="card-header">
-                        <div class="d-flex">
-                            <div>
-                                <h5 class="card-title">Chave SSH</h5>
-                                <p class="card-category">Lista dos chave ssh.</p>
-                            </div>
-                            <div class="ml-auto">
-                                <a href="{{ route('suser.create',request()->id) }}" class="btn btn-success"><i class="fas fa-user mr-1"></i> Criar Usuário</a>
-                            </div>                         
-                            
-                        </div>            
+                        <h5 class="card-title">Serviços</h5>
+                        <p class="card-category">Lista de serviços ativos</p>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table">
                                 <thead class=" text-primary">
                                     <th>
-                                        #
+                                        Name
                                     </th>
                                     <th>
-                                        Nome
+                                        Uso CPU
                                     </th>
                                     <th>
-                                        Data
+                                        Uso Memória
                                     </th>
                                     <th></th>
                                 </thead>
                                 <tbody>
-                                    @foreach ($users as $user)   
+                                    @foreach ($services as $service)   
                                     <tr>
                                         <td>
-                                            {{$user['id']}}
+                                            {{$service['name']}}
                                         </td>
                                         <td>
-                                            {{$user['username']}}
+                                            {{($service['running'])?$service['cpu']:'-'}}
                                         </td>
                                         <td>
-                                            {{$user['created_at']}}
+                                            {{($service['running'])?$service['memory']:'-'}}
                                         </td>
                                         <td>
-                                            <a class="mr-3 database-update-user" href="{{ route('suser.update',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>
-                                            <a class="database-remove-user" href="{{ route('suser.destroy',['id'=> request()->id, 'idus' => $user['id']]) }}"><i class="fas fa-trash-alt"></i></a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Iniciar ou parar" data-name="{{$service['realName']}}" class="start-stop {{($service['running'])?'stop':''}} p-1" href="#">
+                                                @if($service['running'])
+                                                    <i class="fas fa-stop"></i>
+                                                @else
+                                                    <i class="fas fa-play"></i>                    
+                                                @endif
+                                            </a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Recarregar" data-name="{{$service['realName']}}" class="reload p-1" href="#"><i class="fas fa-redo-alt"></i></a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Reiniciar" data-name="{{$service['realName']}}" class="restart p-1" href="#"><i class="fas fa-sync-alt"></i></a>
                                         </td>
                                     </tr>
                                     @endforeach
+
+                                    <form action="{{route('service.update',['id' => request()->id])}}" id="form-service" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="realName" class="real-name">
+                                        <input type="hidden" name="action" class="action">
+                                    </form>
                                 </tbody>
                             </table>
                         </div>
@@ -68,45 +72,6 @@
         </div>
     </div>
     
-    <!-- Modal -->
-    <div class="modal fade" id="modalPass" tabindex="-1" role="dialog" >
-        <form action="#" method="GET" class="modal-dialog action-update-user" role="document">
-            @csrf
-
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Atualizar senha</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="col-sm-12 form-group{{ $errors->has('password') ? ' has-danger' : '' }}">
-                    <label for="password">Senha</label>
-                    <input name="password" id="password" type="password" class="form-control" placeholder="Digite a senha">
-                    @if ($errors->has('password'))
-                        <span class="invalid-feedback" style="display: block;" role="alert">
-                            {{ $errors->first('password') }}
-                        </span>
-                    @endif
-                </div>
-                <div class="col-sm-12 form-group{{ $errors->has('password_confirmation') ? ' has-danger' : '' }}">
-                    <label for="password_confirmation">Confirmar Senha</label>
-                    <input name="password_confirmation" id="password_confirmation" type="password" class="form-control" placeholder="Confirme a senha">
-                    @if ($errors->has('password_confirmation'))
-                        <span class="invalid-feedback" style="display: block;" role="alert">
-                            {{ $errors->first('password_confirmation') }}
-                        </span>
-                    @endif
-                </div>
-            </div>
-            <div class="modal-footer">
-                <input type="submit" class="btn btn-primary" value="Atualizar">
-            </div>
-            </div>
-        </form>
-    </div>
-
 @endsection
 
 @push('scripts')
@@ -126,59 +91,45 @@
     });
 @endif
 
-@if ($errors->has('username'))
-    $.notify({
-        // options
-        title: '<strong>Mensagem do sistema</strong>',
-        message: '{{ $errors->first('username') }}'
-    },{
-        // settings
-        type: 'warning',
-        placement: {
-            from: "bottom",
-            align: "center"
+$('[data-toggle="popover"]').popover()
+
+$('.start-stop').on('click',function(e){
+    e.preventDefault();
+
+    if(confirm('Tem certeza que quer mudar o estado do serviço?')){
+        $('.real-name').val($(this).data('name'));
+        if($(this).hasClass('stop')){
+            $(this).html('<i class="fas fa-play"></i>');
+            $(this).removeClass('stop');
+            $('.action').val('stop');
+        }else{
+            $(this).html('<i class="fas fa-stop"></i>');
+            $(this).addClass('stop');
+            $('.action').val('start');
         }
-    });
-@endif
-
-@if ($errors->has('password'))
-    $.notify({
-        // options
-        title: '<strong>Mensagem do sistema</strong>',
-        message: '{{ $errors->first('password') }}'
-    },{
-        // settings
-        type: 'warning',
-        placement: {
-            from: "bottom",
-            align: "center"
-        }
-    });
-@endif
-
-$('.database-remove').on('click',function(e){
-    e.preventDefault();
-    if(confirm('Tem certeza que quer remover este banco de dados?')){
-        window.location.href = $(this).attr('href');
+        $('#form-service').submit();
     }
-});
+})
 
-$('.database-remove-user').on('click',function(e){
+
+$('.restart').on('click',function(e){
     e.preventDefault();
-    if(confirm('Tem certeza que quer remover este usuário?')){
-        window.location.href = $(this).attr('href');
+
+    if(confirm('Tem certeza que quer reiniciar o serviço?')){
+        $('.real-name').val($(this).data('name'));
+        $('.action').val('restart');
+        $('#form-service').submit();
     }
-});
+})
 
-$('.database-attach').on('click',function(e){
+$('.reload').on('click',function(e){
     e.preventDefault();
-    $('.action-attach-user').attr('action',$(this).attr('href'));
-});
 
-$('.database-update-user').on('click',function(e){
-    e.preventDefault();
-    $('.action-update-user').attr('action',$(this).attr('href'));
-});
-
+    if(confirm('Tem certeza que quer recarregar o serviço?')){
+        $('.real-name').val($(this).data('name'));
+        $('.action').val('reload');
+        $('#form-service').submit();
+    }
+})
 </script>
 @endpush

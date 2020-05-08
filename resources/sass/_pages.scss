@@ -60,3 +60,45 @@ h5,h6{
         cursor:pointer;
     }
 }
+
+nav{
+    .breadcrumb{
+        background-color: transparent;
+    }
+}
+
+.dark-mode{
+    #app{
+        background-color:#000 !important;
+        .navbar-nav{
+            i{
+                color:#FFF;
+            }
+        }
+        .content{
+            .card{
+                background-color:#212120 !important;
+            }
+        
+            h1,h2,h3,h4,h5,h6,p,span,th,td,a,i{
+                color:#FFF !important;
+            }
+            .card-category{
+                color:#9A9A9A !important;
+            }
+            .pagination{
+                .page-item{
+                    .page-link{
+                        background-color:transparent !important;
+                    }
+                    &.active{
+                        .page-link{
+                            background-color:#3490dc !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+}

@@ -41,6 +41,20 @@
                 </a>
             </li>
 
+            <li class="{{ $elementActive == 'cron.index' ? 'active' : '' }}">
+                <a href="{{ route('cron.index',['id' =>request()->id]) }}">
+                <i class="fas fa-history"></i>
+                    <p>{{ __('CRON') }}</p>
+                </a>
+            </li>
+
+            <li class="{{ $elementActive == 'security.index' ? 'active' : '' }}">
+                <a href="{{ route('security.index',['id' =>request()->id]) }}">
+                <i class="fas fa-shield-alt"></i>
+                    <p>{{ __('SEGURANÇA') }}</p>
+                </a>
+            </li>
+
             <li class="{{ $elementActive == 'ssh.index' ? 'active' : '' }}">
                 <a href="{{ route('ssh.index',['id' =>request()->id,'pag' => 1]) }}">
                 <i class="fas fa-key"></i>

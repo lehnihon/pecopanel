@@ -2,11 +2,13 @@
     <div class="container-fluid">
         <div class="navbar-wrapper">
             <div class="navbar-toggle">
-                <button type="button" class="navbar-toggler">
-                    <span class="navbar-toggler-bar bar1"></span>
-                    <span class="navbar-toggler-bar bar2"></span>
-                    <span class="navbar-toggler-bar bar3"></span>
-                </button>
+                @server
+                    <button type="button" class="navbar-toggler">
+                        <span class="navbar-toggler-bar bar1"></span>
+                        <span class="navbar-toggler-bar bar2"></span>
+                        <span class="navbar-toggler-bar bar3"></span>
+                    </button>
+                @endserver
             </div>
             <a class="navbar-brand" href="{{ route('home') }}">{{ __('Painel VindixRuncloud') }}</a>
         </div>
@@ -17,12 +19,20 @@
             <span class="navbar-toggler-bar navbar-kebab"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navigation">
-            <ul class="navbar-nav">
-                <li class="nav-item {{ $elementActive == 'subscription.index' ? 'active' : '' }}">
+            <ul class="navbar-nav w-100">
+                <li class="nav-item {{ $elementActive == 'home.index' ? 'active' : '' }}">
+                    <a class="nav-link btn-magnify" href="{{ route('home') }}">
+                        <i class="nc-icon nc-globe"></i>
+                        <p>
+                        <span>Servidores</span>
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item mr-auto {{ $elementActive == 'subscription.index' ? 'active' : '' }}">
                     <a class="nav-link btn-magnify" href="{{ route('subscription.index') }}">
                         <i class="nc-icon nc-spaceship"></i>
                         <p>
-                        <span class="d-lg-none d-md-block">Assinaturas</span>
+                        <span>Assinaturas</span>
                         </p>
                     </a>
                 </li>

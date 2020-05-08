@@ -36,9 +36,14 @@ class ServerController extends Controller
     {
         $server = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id)->json();
-        
+
         $hardware = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/hardwareinfo')->json();
+        if(isset($hardware['message'])){
+            $status = "Servidor não está respondendo";
+            return redirect()->route('home')->with('status', $status);
+        }
+
         $hardware['percMemory'] = $this->percCalc($hardware['totalMemory'],$hardware['freeMemory']);
         $hardware['diskPerc'] = $this->percCalc($hardware['diskTotal'],$hardware['diskFree']);
 
@@ -287,15 +292,57 @@ class ServerController extends Controller
     public function userDestroy($id, $idus){
         $user = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users/'.$idus)->json();
-        if(isset($use['message'])){
+        if(isset($user['message'])){
             $status = "Erro ao remover o usuário";
-            return redirect()->route('suserindex', ['id' => $id])->with('status', $status);
+            return redirect()->route('suser.index', ['id' => $id])->with('status', $status);
         }else{
             $status = "Usuário removido";
             return redirect()->route('suser.index', ['id' => $id])->with('status', $status);
         }
     }
 
+    public function cron($id){
+        $cron = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/cronjobs')->json();
+      
+        return view("cron.index",[
+            'cron' => $cron['data'],
+            'pagination' => $cron['meta']['pagination'],
+            'initpage' => $this->initPage($cron)
+            ]);
+    }
+
+    public function cronCreate($id){
+        $users = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/users')->json();
+        return view("cron.create",['users' => $users['data']]);
+    }
+
+    public function cronStore($id, Request $request){
+        $data = $this->validatorCron($request);
+
+        $cron = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/cronjobs',
+                ['label' => $data['label'],'username' => $data['username'],'command' => $data['command']
+                ,'minute' => $data['minute'],'hour' => $data['hour'],'dayOfMonth' => $data['dayOfMonth']
+                ,'month' => $data['month'],'dayOfWeek' => $data['dayOfWeek']
+                ])->json();
+
+        $status = (!isset($cron['errors'])) ? "Cron criada" : "Erro ao cadastrar cron";
+        return redirect()->route('cron.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function cronDestroy($id, $idcr){
+        $cron = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/cronjobs/'.$idcr)->json();
+        if(isset($cron['message'])){
+            $status = "Erro ao remover o cron";
+            return redirect()->route('cron.index', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Cron removido";
+            return redirect()->route('cron.index', ['id' => $id])->with('status', $status);
+        }
+    }
 
     public function database($id){
         $databases = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
@@ -400,17 +447,28 @@ class ServerController extends Controller
     }
 
     public function security($id){
-        $logs = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/logs?='.$pag)->json();
-
-        return view("security.index",['ssh' => $logs['data']]);
+        $security = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'security/firewalls?='.$pag)->json();
+        return view("security.index",[
+            'securitys' => $security['data'],
+            'pagination' => $security['meta']['pagination'],
+            'initpage' => $this->initPage($security)
+        ]);
     }
 
     public function service($id){
-        $logs = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/logs?='.$pag)->json();
+        $service = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/services')->json();
 
-        return view("service.index",['ssh' => $logs['data']]);
+        return view("service.index",['services' => $service]);
+    }
+
+    public function serviceUpdate($id, Request $request){
+        $service = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->patch(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/services',$request->all())->json();
+
+        $status = (!isset($service['errors'])) ? "Serviço atualizado" : "Erro ao atualizar serviço";
+        return redirect()->route('service.index', ['id' => $id])->with('status', $status);  
     }
 
     public function ssh($id){
@@ -456,11 +514,7 @@ class ServerController extends Controller
     public function log($id,$pag = 1){
         $logs = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/logs?page='.$pag)->json();
-        $initpage = 0;
-        if($logs['meta']['pagination']['current_page']-5 > 0){
-            $initpage = $logs['meta']['pagination']['current_page']-5;
-        }
-        return view("logs.index",['logs' => $logs['data'],'pagination' => $logs['meta']['pagination'],'initpage' => $initpage]);
+        return view("logs.index",['logs' => $logs['data'],'pagination' => $logs['meta']['pagination'],'initpage' => $this->initPage($logs)]);
     }
 
     public function percCalc($total,$number){
@@ -468,13 +522,12 @@ class ServerController extends Controller
         return (int)round($diff/$total*100);
     }
 
-    protected function validator($request)
-    {
-        return $request->validate([
-            'server' => ['required'],
-            'subscription' => ['required'],
-            'user' => ''
-        ]);
+    public function initPage($current){
+        $initpage = 0;
+        if($current['meta']['pagination']['current_page']-5 > 0){
+            $initpage = $current['meta']['pagination']['current_page']-5;
+        }
+        return $initpage;
     }
 
     protected function validatorWebApp($request)
@@ -495,6 +548,20 @@ class ServerController extends Controller
     {
         return $request->validate([
             'script' => ['required'],
+        ]);
+    }
+
+    protected function validatorCron($request)
+    {
+        return $request->validate([
+            'label' => ['required'],
+            'username' => ['required'],
+            'command' => ['required'],
+            'minute' => ['required'],
+            'hour' => ['required'],
+            'dayOfMonth' => ['required'],
+            'month' => ['required'],
+            'dayOfWeek' => ['required'],
         ]);
     }
 

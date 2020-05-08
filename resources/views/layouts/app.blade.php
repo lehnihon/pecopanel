@@ -78,7 +78,11 @@ The above copyright notice and this permission notice shall be included in all c
 
 </head>
 
-<body class="{{ $class }}">
+<body class="{{ $class }} 
+@auth()
+    {{(auth()->user()->dark)?'dark-mode':''}}
+@endauth
+">
 
     @auth()
         @include('layouts.page_templates.auth')

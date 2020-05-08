@@ -127,7 +127,7 @@ class SubscriptionController extends Controller
             'user_id' => $user->id
         ])) ? "Servidor associado!" : "Erro ao associar o servidor";
 
-        return redirect('subscription.connect')->with('status', $status);
+        return redirect('user')->with('status', $status);
     }
 
     /**
@@ -162,5 +162,14 @@ class SubscriptionController extends Controller
     public function destroy(Subscription $subscription)
     {
         //
+    }
+
+    protected function validator($request)
+    {
+        return $request->validate([
+            'server' => ['required'],
+            'subscription' => ['required'],
+            'user' => ''
+        ]);
     }
 }

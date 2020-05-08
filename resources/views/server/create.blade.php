@@ -9,7 +9,7 @@
             <div class="col-md-12">
                 <div class="card ">
                     <div class="card-header ">
-                        <h5 class="card-title">Servidores</h5>
+                        <h5 class="card-title">Usuários</h5>
                         <p class="card-category">Associe o servidor</p>
                     </div>
                     <div class="card-body">

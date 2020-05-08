@@ -17000,3 +17000,46 @@ h6 {
   cursor: pointer;
 }
 
+nav .breadcrumb {
+  background-color: transparent;
+}
+
+.dark-mode #app {
+  background-color: #000 !important;
+}
+
+.dark-mode #app .navbar-nav i {
+  color: #FFF;
+}
+
+.dark-mode #app .content .card {
+  background-color: #212120 !important;
+}
+
+.dark-mode #app .content h1,
+.dark-mode #app .content h2,
+.dark-mode #app .content h3,
+.dark-mode #app .content h4,
+.dark-mode #app .content h5,
+.dark-mode #app .content h6,
+.dark-mode #app .content p,
+.dark-mode #app .content span,
+.dark-mode #app .content th,
+.dark-mode #app .content td,
+.dark-mode #app .content a,
+.dark-mode #app .content i {
+  color: #FFF !important;
+}
+
+.dark-mode #app .content .card-category {
+  color: #9A9A9A !important;
+}
+
+.dark-mode #app .content .pagination .page-item .page-link {
+  background-color: transparent !important;
+}
+
+.dark-mode #app .content .pagination .page-item.active .page-link {
+  background-color: #3490dc !important;
+}
+

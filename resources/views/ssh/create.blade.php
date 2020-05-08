@@ -49,8 +49,7 @@
                                 </div>
                                 <div class="col-sm-12 form-group{{ $errors->has('publick') ? ' has-danger' : '' }}">
                                     <label for="publick">Chave Pública</label>
-                                    <textarea name="publick" id="publick" class="form-control" placeholder="Digita sua chave pública">
-                                    </textarea>
+                                    <textarea name="publick" id="publick" class="form-control px-3" placeholder="Digita sua chave pública"></textarea>
                                     @if ($errors->has('publick'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
                                             {{ $errors->first('publick') }}

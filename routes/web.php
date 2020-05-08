@@ -69,18 +69,29 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('{id}/database/{idus}/destroy-user','ServerController@databaseDestroyUser')->name('database.destroy.user');
 		Route::get('/{id}/create','ServerController@create')->name('server.create');
 		Route::get('/{id}/log/{pag}','ServerController@log')->name('log.index');
+
 		Route::get('/{id}/service','ServerController@service')->name('service.index');
+		Route::post('/{id}/service/update','ServerController@serviceUpdate')->name('service.update');
+
 		Route::get('/{id}/security','ServerController@security')->name('security.index');
+
+		Route::get('/{id}/cron','ServerController@cron')->name('cron.index');
+		Route::get('/{id}/cron/create','ServerController@cronCreate')->name('cron.create');
+		Route::post('/{id}/cron/store','ServerController@cronStore')->name('cron.store');
+		Route::get('/{id}/cron/{idcr}/destroy','ServerController@cronDestroy')->name('cron.destroy');
+		
 		Route::get('/{id}/ssh','ServerController@ssh')->name('ssh.index');
 		Route::get('/{id}/ssh/create','ServerController@sshCreate')->name('ssh.create');
 		Route::post('/{id}/ssh/store','ServerController@sshStore')->name('ssh.store');
 		Route::get('/{id}/ssh/{idssh}/destroy','ServerController@sshDestroy')->name('ssh.destroy');
+
 		Route::get('/{id}/user','ServerController@user')->name('suser.index');
 		Route::get('{id}/user/create','ServerController@userCreate')->name('suser.create');
 		Route::post('/{id}/user/store','ServerController@userStore')->name('suser.store');
 		Route::get('/{id}/user/{user}','ServerController@userShow')->name('suser.show');
 		Route::get('/{id}/user/{idus}/update','ServerController@userUpdate')->name('suser.update');
 		Route::get('/{id}/user/{idus}/destroy','ServerController@userDestroy')->name('suser.destroy');
+
 		Route::get('/{id}/webapp','ServerController@webApp')->name('webapp.index');
 		Route::post('{id}/webapp','ServerController@webAppStore')->name('webapp.store');
 		Route::get('/{id}/webapp/create','ServerController@webAppCreate')->name('webapp.create');

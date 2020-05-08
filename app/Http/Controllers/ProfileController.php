@@ -33,7 +33,9 @@ class ProfileController extends Controller
      */
     public function update(ProfileRequest $request)
     {
-        auth()->user()->update($request->all());
+        $data = $request->all();
+        $data['dark'] = (isset($data['dark']))?'1':'0';
+        auth()->user()->update($data);
 
         return back()->withStatus(__('Profile successfully updated.'));
     }

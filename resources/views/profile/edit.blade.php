@@ -177,6 +177,15 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="form-check">
+                                <label class="form-check-label">
+                                    <input {{(auth()->user()->dark)?'checked':''}} name="dark" class="form-check-input" type="checkbox" value="1">
+                                    Modo Escuro
+                                    <span class="form-check-sign">
+                                        <span class="check"></span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                         <div class="card-footer ">
                             <div class="row">

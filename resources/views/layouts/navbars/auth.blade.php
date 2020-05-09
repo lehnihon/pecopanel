@@ -7,7 +7,7 @@
             </div>
         </a>
         -->
-        <a href="#" class="simple-text logo-normal">
+        <a href="{{ route('profile.edit') }}" class="simple-text logo-normal">
             {{ __(auth()->user()->name) }}
         </a>
     </div>
@@ -48,6 +48,13 @@
                 </a>
             </li>
 
+            <li class="{{ $elementActive == 'service.index' ? 'active' : '' }}">
+                <a href="{{ route('service.index',['id' =>request()->id]) }}">
+                <i class="fas fa-building"></i>
+                    <p>{{ __('SERVIÇOS') }}</p>
+                </a>
+            </li>
+
             <li class="{{ $elementActive == 'security.index' ? 'active' : '' }}">
                 <a href="{{ route('security.index',['id' =>request()->id]) }}">
                 <i class="fas fa-shield-alt"></i>
@@ -66,13 +73,6 @@
                 <a href="{{ route('log.index',['id' =>request()->id,'pag' => 1]) }}">
                 <i class="far fa-list-alt"></i>
                     <p>{{ __('LOGS') }}</p>
-                </a>
-            </li>
-
-            <li class="{{ $elementActive == 'icons' ? 'active' : '' }}">
-                <a href="{{ route('page.index', 'icons') }}">
-                    <i class="nc-icon nc-diamond"></i>
-                    <p>{{ __('Icons') }}</p>
                 </a>
             </li>
            

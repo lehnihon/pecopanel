@@ -74,6 +74,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post('/{id}/service/update','ServerController@serviceUpdate')->name('service.update');
 
 		Route::get('/{id}/security','ServerController@security')->name('security.index');
+		Route::get('/{id}/security/{ip}/destroy','ServerController@securityDestroy')->name('security.destroy');
 
 		Route::get('/{id}/cron','ServerController@cron')->name('cron.index');
 		Route::get('/{id}/cron/create','ServerController@cronCreate')->name('cron.create');
@@ -96,6 +97,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post('{id}/webapp','ServerController@webAppStore')->name('webapp.store');
 		Route::get('/{id}/webapp/create','ServerController@webAppCreate')->name('webapp.create');
 		Route::get('/{id}/webapp/{idwa}/show','ServerController@webAppShow')->name('webapp.show');
+		Route::post('{id}/webapp/{idwa}/update','ServerController@webAppUpdate')->name('webapp.update');
 		Route::get('/{id}/webapp/{idwa}/rebuild','ServerController@webAppRebuild')->name('webapp.rebuild');
 		Route::get('/{id}/webapp/{idwa}/default','ServerController@webAppDefault')->name('webapp.default');
 		Route::get('/{id}/webapp/{idwa}/destroy','ServerController@webAppDestroy')->name('webapp.destroy');
@@ -104,6 +106,10 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post('/{id}/webapp/{idwa}/domain/store','ServerController@webAppDomainStore')->name('webapp.domain.store');
 		Route::get('/{id}/webapp/{idwa}/domain/{domain}','ServerController@webAppDomainDestroy')->name('webapp.domain.destroy');
 		Route::get('/{id}/webapp/{idwa}/script/{script}','ServerController@webAppScriptDestroy')->name('webapp.script.destroy');
+		
+		Route::post('/{id}/webapp/{idwa}/ssl','ServerController@webAppSslStore')->name('webapp.ssl.store');
+		Route::post('/{id}/webapp/{idwa}/ssl/{idssl}/update','ServerController@webAppSslUpdate')->name('webapp.ssl.update');
+		Route::get('/{id}/webapp/{idwa}/ssl/{idssl}/destroy','ServerController@webAppSslDestroy')->name('webapp.ssl.destroy');
 		
 	});
 	

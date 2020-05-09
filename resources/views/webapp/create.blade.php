@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="form-check col-sm-6 pt-4">
                                     <label class="form-check-label">
-                                        <input name="user-check" class="form-check-input" {{old('user-check') ? 'checked' : ''}} type="checkbox">
+                                        <input name="user-check" class="user-check form-check-input" {{old('user-check') ? 'checked' : ''}} type="checkbox">
                                         Usar usuário existente
                                         <span class="form-check-sign">
                                             <span class="check"></span>
@@ -63,6 +63,21 @@
                                     @if($errors->has('user'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
                                             {{ $errors->first('user') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('php') ? ' has-danger' : '' }}">
+                                    <label for="php">Versão PHP</label>
+                                    <select name="php" id="php" class="form-control">
+                                        <option value="" selected disabled>Selecione</option>
+                                        @foreach($php_versions as $php)
+                                            <option {{ old('php') == $php ? 'selected' : '' }} value="{{$php}}">{{$php}}</option>
+                                        @endforeach
+                                    </select>
+            
+                                    @if($errors->has('php'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('php') }}
                                         </span>
                                     @endif
                                 </div>
@@ -93,20 +108,168 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="col-sm-6 form-group{{ $errors->has('php') ? ' has-danger' : '' }}">
-                                    <label for="php">Versão PHP</label>
-                                    <select name="php" id="php" class="form-control">
-                                        <option value="" selected disabled>Selecione</option>
-                                        @foreach($php_versions as $php)
-                                            <option {{ old('php') == $php ? 'selected' : '' }} value="{{$php}}">{{$php}}</option>
-                                        @endforeach
+                                <div class="w-100"></div>
+                                <div class="form-check col-sm-6 pt-4 mb-5">
+                                    <label class="form-check-label">
+                                        <input {{old('advanced') ? 'checked' : ''}}  name="advanced" class="advanced-btn form-check-input" type="checkbox" value="1">
+                                        Configurações avançadas
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="advanced-box row" style="display:none">
+                                <div class="col-sm-12 my-3">
+                                    <h5>Nginx Settings</h5>
+                                </div>   
+                                <div class="form-check col-sm-6 mb-3">
+                                    <label class="form-check-label">
+                                        <input {{ old('clickjackingProtection',1) ?'checked':''}}  name="clickjackingProtection" class="form-check-input" type="checkbox" value="1">
+                                        Proteção Clickjacking
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-check col-sm-6 mb-3">
+                                    <label class="form-check-label">
+                                        <input {{old('xssProtection',1)?'checked':''}}  name="xssProtection" class="form-check-input" type="checkbox" value="1">
+                                        Proteção Cross-site scripting (XSS)
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-check col-sm-6 pt-4 mb-3">
+                                    <label class="form-check-label">
+                                        <input {{old('mimeSniffingProtection',1) ?'checked':''}}  name="mimeSniffingProtection" class="form-check-input" type="checkbox" value="1">
+                                        Proteção Mime sniffing
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="col-sm-12 my-3">
+                                    <h5>Configurações FPM</h5>
+                                </div>   
+                                <div class="col-sm-6 form-group{{ $errors->has('processManager') ? ' has-danger' : '' }}">
+                                    <label for="processManager">Gerente de Processo</label>
+                                    <select name="processManager" id="stackmode" class="form-control">
+                                        <option {{ old('processManager') == 'dynamic' ? 'selected' : '' }} value="dynamic">Dynamic</option>
+                                        <option {{ old('processManager','ondemand') == 'ondemand' ? 'selected' : '' }} value="ondemand">Ondemand</option>
+                                        <option {{ old('processManager') == 'static' ? 'selected' : '' }} value="static">Static</option>
                                     </select>
-            
-                                    @if($errors->has('php'))
+                                    @if($errors->has('processManager'))
                                         <span class="invalid-feedback" style="display: block;" role="alert">
-                                            {{ $errors->first('php') }}
+                                            {{ $errors->first('processManager') }}
                                         </span>
                                     @endif
+                                </div>
+
+                                <div class="col-sm-6 form-group{{ $errors->has('processManagerMaxChildren') ? ' has-danger' : '' }}">
+                                    <label for="processManagerMaxChildren">pm.max_children</label>
+                                    <input name="processManagerMaxChildren" id="processManagerMaxChildren" type="text" class="form-control" value="{{old('processManagerMaxChildren','50') }}" >
+                                    @if ($errors->has('processManagerMaxChildren'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('processManagerMaxChildren') }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="col-sm-6 form-group{{ $errors->has('processManagerMaxRequests') ? ' has-danger' : '' }}">
+                                    <label for="processManagerMaxRequests">pm.max_requests</label>
+                                    <input name="processManagerMaxRequests" id="processManagerMaxRequests" type="text" class="form-control" value="{{ old('processManagerMaxRequests','500')}}" >
+                                    @if ($errors->has('processManagerMaxRequests'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('processManagerMaxRequests') }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="col-sm-12 my-3">
+                                    <h5>Configurações PHP</h5>
+                                </div>
+                                <div class="col-sm-12 form-group{{ $errors->has('disableFunctions') ? ' has-danger' : '' }}">
+                                    <label for="disableFunctions">Desabilitar Funções</label>
+                                    <textarea name="disableFunctions" class="form-control px-3" cols="30" rows="5">{{old('disableFunctions')}}</textarea>
+                                    @if ($errors->has('disableFunctions'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('disableFunctions') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('maxExecutionTime') ? ' has-danger' : '' }}">
+                                    <label for="maxExecutionTime">max_execution_time</label>
+                                    <input name="maxExecutionTime" id="maxExecutionTime" type="text" class="form-control" value="{{ old('maxExecutionTime','30') }}" >
+                                    @if ($errors->has('maxExecutionTime'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('maxExecutionTime') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('maxInputTime') ? ' has-danger' : '' }}">
+                                    <label for="maxInputTime">max_input_time</label>
+                                    <input name="maxInputTime" id="maxInputTime" type="text" class="form-control" value="{{ old('maxInputTime','60') }}" >
+                                    @if ($errors->has('maxInputTime'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('maxInputTime') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('maxInputVars') ? ' has-danger' : '' }}">
+                                    <label for="maxInputVars">max_input_vars</label>
+                                    <input name="maxInputVars" id="maxInputVars" type="text" class="form-control" value="{{ old('maxInputVars','1000') }}" >
+                                    @if ($errors->has('maxInputVars'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('maxInputVars') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('memoryLimit') ? ' has-danger' : '' }}">
+                                    <label for="memoryLimit">memory_limit</label>
+                                    <input name="memoryLimit" id="memoryLimit" type="text" class="form-control" value="{{ old('memoryLimit','256') }}" >
+                                    @if ($errors->has('memoryLimit'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('memoryLimit') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('postMaxSize') ? ' has-danger' : '' }}">
+                                    <label for="postMaxSize">post_max_size (Nginx e PHP)</label>
+                                    <input name="postMaxSize" id="postMaxSize" type="text" class="form-control" value="{{ old('postMaxSize','256') }}" >
+                                    @if ($errors->has('postMaxSize'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('postMaxSize') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('uploadMaxFilesize') ? ' has-danger' : '' }}">
+                                    <label for="uploadMaxFilesize">upload_max_filesize</label>
+                                    <input name="uploadMaxFilesize" id="uploadMaxFilesize" type="text" class="form-control" value="{{ old('uploadMaxFilesize','256') }}" >
+                                    @if ($errors->has('uploadMaxFilesize'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('uploadMaxFilesize') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-6 form-group{{ $errors->has('sessionGcMaxlifetime') ? ' has-danger' : '' }}">
+                                    <label for="sessionGcMaxlifetime">session.gc_maxlifetime</label>
+                                    <input name="sessionGcMaxlifetime" id="sessionGcMaxlifetime" type="text" class="form-control" value="{{ old('sessionGcMaxlifetime','1440') }}" >
+                                    @if ($errors->has('sessionGcMaxlifetime'))
+                                        <span class="invalid-feedback" style="display: block;" role="alert">
+                                            {{ $errors->first('sessionGcMaxlifetime') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-check col-sm-6 mb-3 pt-4">
+                                    <label class="form-check-label">
+                                        <input {{old('allowUrlFopen',1)?'checked':''}} name="allowUrlFopen" class="form-check-input" type="checkbox" value="1">
+                                        allow_url_fopen
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -122,14 +285,14 @@
 
 @push('scripts')
 <script>
-if($('.form-check-input').is(":checked")){
+if($('.user-check').is(":checked")){
     $('.user-select').show('slow').prop( "disabled", false );
     $('.user-input').hide().prop( "disabled", true );
 }else{
     $('.user-select').hide().prop( "disabled", true);
     $('.user-input').show('slow').prop( "disabled", false);
 }
-$('.form-check-input').on('click',function(){
+$('.user-check').on('click',function(){
     if($(this).is(":checked")){
         $('.user-select').show('slow').prop( "disabled", false );
         $('.user-input').hide().prop( "disabled", true );
@@ -145,5 +308,13 @@ $('.mask-name').mask('ZZZZZZZZZZZZZZZZZZZZ', {
         }
     }
 });
+
+$('.advanced-btn').on('click',function(e){
+    if($(this).is(':checked')){
+        $('.advanced-box').show();
+    }else{
+        $('.advanced-box').hide();
+    }
+})
 </script>
 @endpush

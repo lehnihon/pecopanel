@@ -95,6 +95,54 @@ class ServerController extends Controller
         return view("webapp.index",['webapps' => $webapps['data']]);
     }
 
+    public function webAppSslStore($id, $idwa, Request $request){
+        if($request->input('provider') == 'letsencrypt'){
+            $data = $this->validatorSslA($request);
+        }else{
+            $data = $this->validatorSslB($request);
+        }
+        $data['enableHttp'] = (isset($data['enableHttp'])) ? '1': '0';
+        $data['enableHsts'] = (isset($data['enableHsts'])) ? '1': '0';
+
+        $ssl = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl',$data)->json();
+
+        $status = (!isset($ssl['errors'])) ? "Ssl instalado" : "Erro ao instalar ssl";
+        return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+
+    }
+
+    public function webAppSslUpdate($id, $idwa,$idssl, Request $request){
+        if($request->input('method') == 'letsencrypt'){
+            $data = $this->validatorSslD($request);
+        }else{
+            $data = $this->validatorSslC($request);
+        }
+        $data['enableHttp'] = (isset($data['enableHttp'])) ? '1': '0';
+        $data['enableHsts'] = (isset($data['enableHsts'])) ? '1': '0';
+
+        $ssl = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->patch(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl/'.$idssl,$data)->json();
+ 
+        $status = (!isset($ssl['errors'])) ? "Ssl atualizado" : "Erro ao atualizar ssl";
+        return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+
+    }
+
+    public function webAppSslDestroy($id, $idwa,$idssl, Request $request){
+        $ssl = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl/'.$idssl)->json();
+
+        if(isset($ssl['message'])){
+            $status = "Erro ao remover ssl";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }else{
+            $status = "Ssl removido";
+            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        }
+
+    }
+
     public function webAppDomain($id, $idwa){
         $domains = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/domains')->json();
@@ -133,6 +181,79 @@ class ServerController extends Controller
         return view("webapp.create",['server' => $id, 'users' => $users['data'], 'php_versions' => $php_versions]);
     }
 
+    public function webAppUpdate($id, $idwa, Request $request){
+        $data = $this->validatorWebAppB($request);
+
+        if(empty($data['clickjackingProtection'])){
+            $data['clickjackingProtection'] = 1;
+        }
+        if(empty($data['xssProtection'])){
+            $data['xssProtection'] = 1;
+        }
+        if(empty($data['mimeSniffingProtection'])){
+            $data['mimeSniffingProtection'] = 1;
+        }
+
+        if(empty($data['processManager'])){
+            $data['processManager'] = 'ondemand';
+        }
+        if(empty($data['processManagerMaxChildren'])){
+            $data['processManagerMaxChildren'] = '50';
+        }
+        if(empty($data['processManagerMaxRequests'])){
+            $data['processManagerMaxRequests'] = '500';
+        }
+
+        if(empty($data['maxExecutionTime'])){
+            $data['maxExecutionTime'] = '30';
+        }
+        if(empty($data['maxInputTime'])){
+            $data['maxInputTime'] = '60';
+        }
+        if(empty($data['maxInputVars'])){
+            $data['maxInputVars'] = '1000';
+        }
+        if(empty($data['memoryLimit'])){
+            $data['memoryLimit'] = '256';
+        }
+        if(empty($data['postMaxSize'])){
+            $data['postMaxSize'] = '256';
+        }
+        if(empty($data['uploadMaxFilesize'])){
+            $data['uploadMaxFilesize'] = '256';
+        }
+        if(empty($data['sessionGcMaxlifetime'])){
+            $data['sessionGcMaxlifetime'] = '1440';
+        }
+        if(empty($data['allowUrlFopen'])){
+            $data['allowUrlFopen'] = 1;
+        }
+
+        $server = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->patch(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/settings/fpmnginx',[
+                'stack' => $data['stack'],
+                'stackMode' => $data['stackmode'],
+                'clickjackingProtection' => $data['clickjackingProtection'],
+                'xssProtection' => $data['xssProtection'],
+                'mimeSniffingProtection' => $data['mimeSniffingProtection'],
+                'processManager' => $data['processManager'],
+                'processManagerMaxChildren'=> $data['processManagerMaxChildren'],
+                'processManagerMaxRequests' => $data['processManagerMaxRequests'],
+                'timezone' => 'America/Sao_Paulo',
+                'maxExecutionTime' => $data['maxExecutionTime'],
+                'maxInputTime' => $data['maxInputTime'],
+                'maxInputVars' => $data['maxInputVars'],
+                'memoryLimit' => $data['memoryLimit'],
+                'postMaxSize' => $data['postMaxSize'],
+                'uploadMaxFilesize' => $data['uploadMaxFilesize'],
+                'sessionGcMaxlifetime' => $data['sessionGcMaxlifetime'],
+                'allowUrlFopen' => $data['allowUrlFopen']
+            ]);
+
+        $status = (!isset($server['errors'])) ? "Aplicação Web atualizada com sucesso" : "Erro ao atualizar aplicação web";
+        return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+    }
+
     public function webAppStore($id, Request $request){
         $data = $this->validatorWebApp($request);
 
@@ -147,6 +268,51 @@ class ServerController extends Controller
             }               
         }
 
+        if(empty($data['clickjackingProtection'])){
+            $data['clickjackingProtection'] = 1;
+        }
+        if(empty($data['xssProtection'])){
+            $data['xssProtection'] = 1;
+        }
+        if(empty($data['mimeSniffingProtection'])){
+            $data['mimeSniffingProtection'] = 1;
+        }
+
+        if(empty($data['processManager'])){
+            $data['processManager'] = 'ondemand';
+        }
+        if(empty($data['processManagerMaxChildren'])){
+            $data['processManagerMaxChildren'] = '50';
+        }
+        if(empty($data['processManagerMaxRequests'])){
+            $data['processManagerMaxRequests'] = '500';
+        }
+
+        if(empty($data['maxExecutionTime'])){
+            $data['maxExecutionTime'] = '30';
+        }
+        if(empty($data['maxInputTime'])){
+            $data['maxInputTime'] = '60';
+        }
+        if(empty($data['maxInputVars'])){
+            $data['maxInputVars'] = '1000';
+        }
+        if(empty($data['memoryLimit'])){
+            $data['memoryLimit'] = '256';
+        }
+        if(empty($data['postMaxSize'])){
+            $data['postMaxSize'] = '256';
+        }
+        if(empty($data['uploadMaxFilesize'])){
+            $data['uploadMaxFilesize'] = '256';
+        }
+        if(empty($data['sessionGcMaxlifetime'])){
+            $data['sessionGcMaxlifetime'] = '1440';
+        }
+        if(empty($data['allowUrlFopen'])){
+            $data['allowUrlFopen'] = 1;
+        }
+
         $server = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/custom',[
                 'name' => $data['name'],
@@ -155,23 +321,23 @@ class ServerController extends Controller
                 'stack' => $data['stack'],
                 'stackMode' => $data['stackmode'],
                 'phpVersion' =>  $data['php'],
-                'clickjackingProtection' => true,
-                'xssProtection' => true,
-                'mimeSniffingProtection' => true,
-                'processManager' => 'ondemand',
-                'processManagerMaxChildren'=> 50,
-                'processManagerMaxRequests' => 500,
+                'clickjackingProtection' => $data['clickjackingProtection'],
+                'xssProtection' => $data['xssProtection'],
+                'mimeSniffingProtection' => $data['mimeSniffingProtection'],
+                'processManager' => $data['processManager'],
+                'processManagerMaxChildren'=> $data['processManagerMaxChildren'],
+                'processManagerMaxRequests' => $data['processManagerMaxRequests'],
                 'timezone' => 'America/Sao_Paulo',
-                'maxExecutionTime' => 30,
-                'maxInputTime' => 60,
-                'maxInputVars' => 1000,
-                'memoryLimit' => 256,
-                'postMaxSize' => 256,
-                'uploadMaxFilesize' => 256,
-                'sessionGcMaxlifetime' => 1440,
-                'allowUrlFopen' => true
+                'maxExecutionTime' => $data['maxExecutionTime'],
+                'maxInputTime' => $data['maxInputTime'],
+                'maxInputVars' => $data['maxInputVars'],
+                'memoryLimit' => $data['memoryLimit'],
+                'postMaxSize' => $data['postMaxSize'],
+                'uploadMaxFilesize' => $data['uploadMaxFilesize'],
+                'sessionGcMaxlifetime' => $data['sessionGcMaxlifetime'],
+                'allowUrlFopen' => $data['allowUrlFopen']
             ])->json();
-            
+
         $status = (!isset($server['errors'])) ? "Aplicação Web criada com sucesso" : "Erro ao cadastrar aplicação web";
         return redirect()->route('webapp.index', ['id' => $id])->with('status', $status);
     }
@@ -179,10 +345,14 @@ class ServerController extends Controller
     public function webAppShow($id, $idwa){
         $webapp = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa)->json();
+        $setting = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/settings')->json();
         $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer')->json();
-
-        return view("webapp.show",['webapp' => $webapp, 'wascript' => $wascript]);
+        $ssl = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl')->json();
+            
+        return view("webapp.show",['webapp' => $webapp, 'wascript' => $wascript,'ssl' => $ssl,'setting' => $setting]);
     }
 
     public function webAppScript($id, $idwa, Request $request){
@@ -448,12 +618,20 @@ class ServerController extends Controller
 
     public function security($id){
         $security = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'security/firewalls?='.$pag)->json();
-        return view("security.index",[
-            'securitys' => $security['data'],
-            'pagination' => $security['meta']['pagination'],
-            'initpage' => $this->initPage($security)
-        ]);
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/security/fail2ban/blockedip')->json();
+        return view("security.index",['security' => $security]);
+    }
+
+    public function securityDestroy($id,$ip){
+        $security = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->delete(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/security/fail2ban/blockedip',['ip' => $ip])->json();
+        if(isset($security['message'])){
+            $status = "Erro ao remover o ip";
+            return redirect()->route('security.index', ['id' => $id])->with('status', $status);
+        }else{
+            $status = "Ip removido";
+            return redirect()->route('security.index', ['id' => $id])->with('status', $status);
+        }
     }
 
     public function service($id){
@@ -536,12 +714,50 @@ class ServerController extends Controller
             'user-check' => '',
             'user' => ['required'],
             'server' => '',
-            'name' => ['required'],
-            'domain' => ['required','url'],
+            'name' => ['required','alpha_dash'],
+            'domain' => ['required'],
             'stack' => ['required'],
             'stackmode' => ['required'],
-            'php' => ['required']
+            'php' => ['required'],
+            'clickjackingProtection' => '',
+            'xssProtection' => '',
+            'mimeSniffingProtection' => '',
+            'processManager' => '',
+            'processManagerMaxChildren'=> '',
+            'processManagerMaxRequests' => '',
+            'maxExecutionTime' => '',
+            'maxInputTime' => '',
+            'maxInputVars' => '',
+            'memoryLimit' => '',
+            'postMaxSize' => '',
+            'uploadMaxFilesize' => '',
+            'sessionGcMaxlifetime' => '',
+            'allowUrlFopen' => ''
         ]);
+
+    }
+
+    protected function validatorWebAppB($request)
+    {
+        return $request->validate([
+            'stack' => ['required'],
+            'stackmode' => ['required'],
+            'clickjackingProtection' => '',
+            'xssProtection' => '',
+            'mimeSniffingProtection' => '',
+            'processManager' => '',
+            'processManagerMaxChildren'=> '',
+            'processManagerMaxRequests' => '',
+            'maxExecutionTime' => '',
+            'maxInputTime' => '',
+            'maxInputVars' => '',
+            'memoryLimit' => '',
+            'postMaxSize' => '',
+            'uploadMaxFilesize' => '',
+            'sessionGcMaxlifetime' => '',
+            'allowUrlFopen' => ''
+        ]);
+
     }
 
     protected function validatorWebAppScript($request)
@@ -607,6 +823,46 @@ class ServerController extends Controller
             'label' => ['required','alpha_dash'],
             'user' => ['required'],
             'publick' => ['required']
+        ]);
+    }
+
+    protected function validatorSslA($request){
+        return $request->validate([
+            'provider' => ['required'],
+            'enableHttp' => '',
+            'enableHsts' => '',
+            'ssl_protocol_id' => '',
+            'authorizationMethod' => ['required'],
+            'environment' => ['required']
+        ]);
+    }
+
+    protected function validatorSslB($request){
+        return $request->validate([
+            'provider' => ['required'],
+            'enableHttp' => '',
+            'enableHsts' => '',
+            'ssl_protocol_id' => '',
+            'privateKey' => ['required'],
+            'certificate' => ['required']
+        ]);
+    }
+
+    protected function validatorSslC($request){
+        return $request->validate([
+            'enableHttp' => '',
+            'enableHsts' => '',
+            'ssl_protocol_id' => '',
+            'privateKey' => ['required'],
+            'certificate' => ['required']
+        ]);
+    }
+
+    protected function validatorSslD($request){
+        return $request->validate([
+            'enableHttp' => '',
+            'enableHsts' => '',
+            'ssl_protocol_id' => '',
         ]);
     }
 }

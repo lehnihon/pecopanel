@@ -53,7 +53,7 @@
                                             {{$domain['name']}}
                                         </td>
                                         <td>
-                                            {{$domain['created_at']}}
+                                            {{ date("d/m/Y H:i:s", strtotime($domain['created_at']))}}
                                         </td>
                                         <td>
                                         <a class="domain-remove" href="{{ route('webapp.domain.destroy',['id'=> request()->id, 'idwa' => request()->idwa, 'domain' => $domain['id']]) }}"><i class="fas fa-unlink"></i></a>

@@ -91,7 +91,7 @@
     });
 @endif
 
-$('[data-toggle="popover"]').popover()
+$('[data-toggle="popover"]').popover();
 
 $('.start-stop').on('click',function(e){
     e.preventDefault();

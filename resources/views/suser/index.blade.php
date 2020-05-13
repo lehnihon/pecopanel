@@ -42,22 +42,24 @@
                                     <th></th>
                                 </thead>
                                 <tbody>
-                                    @foreach ($users as $user)   
-                                    <tr>
-                                        <td>
-                                            {{$user['id']}}
-                                        </td>
-                                        <td>
-                                            {{$user['username']}}
-                                        </td>
-                                        <td>
-                                            {{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}
-                                        </td>
-                                        <td>
-                                            <a class="mr-3 database-update-user" href="{{ route('suser.update',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>
-                                            <a class="database-remove-user" href="{{ route('suser.destroy',['id'=> request()->id, 'idus' => $user['id']]) }}"><i class="fas fa-trash-alt"></i></a>
-                                        </td>
-                                    </tr>
+                                    @foreach ($users as $user)  
+                                        @if($user['username'] != 'runcloud') 
+                                        <tr>
+                                            <td>
+                                                {{$user['id']}}
+                                            </td>
+                                            <td>
+                                                {{$user['username']}}
+                                            </td>
+                                            <td>
+                                                {{ date("d/m/Y H:i:s", strtotime($user['created_at']))}}
+                                            </td>
+                                            <td>
+                                                <a class="mr-3 database-update-user" href="{{ route('suser.update',['id'=> request()->id, 'idus' => $user['id']]) }}" data-toggle="modal" data-target="#modalPass"><i class="fas fa-edit"></i></a>
+                                                <a class="database-remove-user" href="{{ route('suser.destroy',['id'=> request()->id, 'idus' => $user['id']]) }}"><i class="fas fa-trash-alt"></i></a>
+                                            </td>
+                                        </tr>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>

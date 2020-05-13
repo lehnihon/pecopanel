@@ -112,6 +112,10 @@ The above copyright notice and this permission notice shall be included in all c
     
     <script src="https://cdn.ckeditor.com/ckeditor5/18.0.0/classic/ckeditor.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/18.0.0/classic/translations/pt-br.js"></script>
+    <script>
+        var baseurl = {!! json_encode(url('/')) !!};
+        $('.dark-mode .wrapper #app .navbar .container-fluid .navbar-wrapper .navbar-brand img').attr('src',baseurl+'/img/logo-b.png');
+    </script>
     @stack('scripts')
 
 </body>

@@ -10,7 +10,7 @@
                     </button>
                 @endserver
             </div>
-            <a class="navbar-brand" href="{{ route('home') }}">{{ __('Painel VindixRuncloud') }}</a>
+            <a class="navbar-brand" href="{{ route('home') }}"><img class="img-fluid logo-topo" src="{{url('/img/logo.png')}}" alt="logo" /></a>
         </div>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation"
             aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">

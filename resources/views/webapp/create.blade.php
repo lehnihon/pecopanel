@@ -56,7 +56,9 @@
                                     <select name="user" id="user" class="form-control user-select">
                                         <option value="" selected disabled>Selecione</option>
                                         @foreach($users as $user)
+                                            @if($user['username'] != 'runcloud') 
                                             <option {{ old('user') == $user['id'] ? 'selected' : '' }} value="{{$user['id']}}">{{$user['username']}}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                     <input name="user" id="user" type="text" class="form-control user-input mask-name" placeholder="Digite o usuário" value="{{ old('user') }}">

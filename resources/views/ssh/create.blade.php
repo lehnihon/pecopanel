@@ -38,7 +38,9 @@
                                     <select name="user" id="user" class="form-control">
                                         <option disabled value="">Selecione</option>
                                         @foreach($users as $user)
+                                            @if($user['username'] != 'runcloud') 
                                             <option {{ old('user') == $user['username'] ? 'selected' : '' }} value="{{$user['username']}}">{{$user['username']}}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                     @if($errors->has('user'))

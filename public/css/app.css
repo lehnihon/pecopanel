@@ -17008,6 +17008,10 @@ nav .breadcrumb {
   cursor: pointer;
 }
 
+.logo-topo {
+  max-width: 160px;
+}
+
 .dark-mode #app {
   background-color: #000 !important;
 }

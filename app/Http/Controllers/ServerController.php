@@ -43,9 +43,9 @@ class ServerController extends Controller
             $status = "Servidor não está respondendo";
             return redirect()->route('home')->with('status', $status);
         }
-
-        $hardware['percMemory'] = $this->percCalc($hardware['totalMemory'],$hardware['freeMemory']);
-        $hardware['diskPerc'] = $this->percCalc($hardware['diskTotal'],$hardware['diskFree']);
+        $hardware['percMemory'] = (isset($hardware['percMemory'])) ? $this->percCalc($hardware['totalMemory'],$hardware['freeMemory']) : '0';
+         
+        $hardware['diskPerc'] = (isset($hardware['diskPerc'])) ? $this->percCalc($hardware['diskTotal'],$hardware['diskFree']) : '0';
 
         if(!isset($server['id'])){
             return redirect('home')->with('status', "Servidor não existe");

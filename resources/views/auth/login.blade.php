@@ -38,7 +38,7 @@
                                         <i class="nc-icon nc-single-02"></i>
                                     </span>
                                 </div>
-                                <input class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="{{ __('Password') }}" type="password" required>
+                                <input class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" placeholder="{{ __('Senha') }}" type="password" required>
                                 
                                 @if ($errors->has('password'))
                                     <span class="invalid-feedback" style="display: block;" role="alert">
@@ -47,30 +47,16 @@
                                 @endif
                             </div>
 
-                            <div class="form-group">
-                                <div class="form-check">
-                                     <label class="form-check-label">
-                                        <input class="form-check-input" name="remember" type="checkbox" value="" {{ old('remember') ? 'checked' : '' }}>
-                                        <span class="form-check-sign"></span>
-                                        {{ __('Remember me') }}
-                                    </label>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="card-footer">
                             <div class="text-center">
-                                <button type="submit" class="btn btn-warning btn-round mb-3">{{ __('Sign in') }}</button>
+                                <button type="submit" class="btn btn-warning btn-round mb-3">{{ __('Logar') }}</button>
                             </div>
                         </div>
                     </div>
                 </form>
-                <a href="{{ route('password.request') }}" class="btn btn-link">
-                    {{ __('Forgot password') }}
-                </a>
-                <a href="{{ route('register') }}" class="btn btn-link float-right">
-                    {{ __('Create Account') }}
-                </a>
+               
             </div>
         </div>
     </div>

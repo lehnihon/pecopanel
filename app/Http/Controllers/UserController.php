@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Role;
+use App\Server;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,23 @@ class UserController extends Controller
             'name' => ['required'],
             'email' => ['required'],
             'password' => ['required'],
+            'role' => ['required']
+        ]);
+    }
+
+    protected function validatorServer($request)
+    {
+        return $request->validate([
+            'server' => ['required'],
+            'obs' => ''
+        ]);
+    }
+
+    protected function validatorUpdate($request)
+    {
+        return $request->validate([
+            'name' => ['required'],
+            'email' => ['required'],
             'role' => ['required'],
         ]);
     }
@@ -29,8 +47,11 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('role')->orderBy('email', 'asc')->get();
+
+        $servers = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers',[])->json();
                 
-        return view("user.index",['users' => $users]);
+        return view("user.index",['users' => $users, 'servers' => $servers['data']]);
     }
 
     /**
@@ -40,15 +61,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        $customers = Http::withBasicAuth(env('APP_VINDI_TOKEN', false), '')
-            ->get(env('APP_VINDI_URL', false).'/customers',[
-                'sort_by' => 'name',
-                'sort_order' => 'asc'
-            ]);
-
         $roles = Role::orderBy('name', 'asc')->get();
 
-        return view("user.create",array_merge(['roles' => $roles],$customers->json()));
+        return view("user.create",['roles' => $roles]);
     }
 
     /**
@@ -60,22 +75,12 @@ class UserController extends Controller
     public function store(Request $request)
     {   
         $data = $this->validator($request);
-        
-        if(empty($data['customer'])){
-            $vindi_id = Http::withBasicAuth(env('APP_VINDI_TOKEN', false), '')
-                ->post(env('APP_VINDI_URL', false).'/customers',[
-                    'name' => $data['name'],
-                    'email' => $data['email']
-                ])["customer"]["id"];
-        }else{
-            $vindi_id = $data['customer'];
-        }
 
         $status = (User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'vindi_id' => $vindi_id,
+            'vindi_id' => '0',
             'role_id' => $data['role']
         ])) ? "Usuário criado!" : "Erro ao criar o usuário";
 
@@ -103,13 +108,8 @@ class UserController extends Controller
     {
         $user = User::with('role')->find($id);
         $roles = Role::orderBy('name', 'asc')->get();
-        $customers = Http::withBasicAuth(env('APP_VINDI_TOKEN', false), '')
-            ->get(env('APP_VINDI_URL', false).'/customers',[
-                'sort_by' => 'name',
-                'sort_order' => 'asc'
-            ]);
 
-        return view("user.edit",array_merge(['user'=> $user, 'roles' => $roles],$customers->json()));
+        return view("user.edit",['user'=> $user, 'roles' => $roles]);
     }
 
     /**
@@ -120,25 +120,44 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $data = $this->validator($request);
-        
-        if(empty($data['customer'])){
-            $vindi_id = Http::withBasicAuth(env('APP_VINDI_TOKEN', false), '')
-                ->post(env('APP_VINDI_URL', false).'/customers',[
-                    'name' => $data['name'],
-                    'email' => $data['email']
-                ])["customer"]["id"];
-        }else{
-            $vindi_id = $data['customer'];
-        }
+        $data = $this->validatorUpdate($request);   
 
-        $status = ($user->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'vindi_id' => $vindi_id,
-            'role_id' => $data['role']
-        ])) ? "Usuário atualizado!" : "Erro ao atualizar o usuário";
+        if(!empty($data['password'])){
+            $status = ($user->update([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'vindi_id' => '0',
+                'role_id' => $data['role']
+            ])) ? "Usuário atualizado!" : "Erro ao atualizar o usuário"; 
+        }else{
+            $status = ($user->update([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'vindi_id' => '0',
+                'role_id' => $data['role']
+            ])) ? "Usuário atualizado!" : "Erro ao atualizar o usuário";
+        }
+        
+        return redirect('user')->with('status', $status);
+    }
+
+    public function connectStore($user, Request $request)
+    {
+        $data = $this->validatorServer($request);
+
+        $server = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$data['server'])->json();
+        
+        $status = (Server::create([
+            'server_ip' => $server['ipAddress'],
+            'server_name' => $server['name'],
+            'server_provider' => $server['provider'],
+            'server_os' => $server['os'],
+            'obs' => $data['obs'],
+            'server_id' => $data['server'],
+            'user_id' => $user
+        ])) ? "Servidor associado!" : "Erro ao associar o servidor";
 
         return redirect('user')->with('status', $status);
     }

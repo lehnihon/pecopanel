@@ -19,7 +19,6 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('secret'),
             'created_at' => now(),
             'updated_at' => now(),
-            'vindi_id' => 1,
             'role_id' => 1
         ]);
     }

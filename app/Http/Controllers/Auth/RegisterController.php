@@ -65,16 +65,10 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $vindi_id = Http::withBasicAuth(env('APP_VINDI_TOKEN', false), '')
-            ->post(env('APP_VINDI_URL', false).'/customers',[
-                'name' => $data['name'],
-                'email' => $data['email']
-            ])["customer"]["id"];
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'vindi_id' => $vindi_id,
             'role_id' => '2'
         ]);
     }

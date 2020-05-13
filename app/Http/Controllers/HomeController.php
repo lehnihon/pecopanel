@@ -23,7 +23,7 @@ class HomeController extends Controller
     public function index()
     {
         if(auth()->user()->role->id == 1){
-            $servers = Server::orderBy('server_name', 'asc')->get();
+            $servers = Server::orderBy('server_name', 'asc')->with('user')->get();
         }else{
             $servers = Server::where('user_id',auth()->user()->id)->orderBy('server_name', 'asc')->get();
         }

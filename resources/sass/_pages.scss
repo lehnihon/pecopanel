@@ -67,6 +67,12 @@ nav{
     }
 }
 
+.config-webapp{
+    &:hover{
+        cursor: pointer;
+    }
+}
+
 .dark-mode{
     #app{
         background-color:#000 !important;
@@ -78,6 +84,10 @@ nav{
         .content{
             .card{
                 background-color:#212120 !important;
+            }
+
+            .dropdown-menu{
+                background-color:#000 !important;
             }
         
             h1,h2,h3,h4,h5,h6,p,span,th,td,a,i{

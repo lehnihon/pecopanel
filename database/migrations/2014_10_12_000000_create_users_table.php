@@ -20,7 +20,6 @@ class CreateUsersTable extends Migration
             $table->boolean('dark')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->bigInteger('vindi_id');
             $table->bigInteger('role_id');
             $table->rememberToken();
             $table->timestamps();

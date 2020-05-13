@@ -17004,6 +17004,10 @@ nav .breadcrumb {
   background-color: transparent;
 }
 
+.config-webapp:hover {
+  cursor: pointer;
+}
+
 .dark-mode #app {
   background-color: #000 !important;
 }
@@ -17014,6 +17018,10 @@ nav .breadcrumb {
 
 .dark-mode #app .content .card {
   background-color: #212120 !important;
+}
+
+.dark-mode #app .content .dropdown-menu {
+  background-color: #000 !important;
 }
 
 .dark-mode #app .content h1,

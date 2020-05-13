@@ -19,7 +19,7 @@ class CreateServersTable extends Migration
             $table->string('server_name');
             $table->string('server_provider');
             $table->string('server_os');
-            $table->bigInteger('subscription_id');
+            $table->string('obs');
             $table->bigInteger('server_id');
             $table->bigInteger('user_id');
             $table->timestamps();

@@ -95,6 +95,31 @@ class ServerController extends Controller
         return view("webapp.index",['webapps' => $webapps['data']]);
     }
 
+    public function webAppSsl($id, $idwa){
+        $ssl = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl')->json();
+
+        return view("webapp.ssl",['ssl' => $ssl]);
+    }
+
+    public function webAppEdit($id, $idwa){
+        $webapp = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa)->json();
+        $setting = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/settings')->json();
+        $php_versions = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/php/version')->json();
+
+        return view("webapp.edit",['webapp' => $webapp, 'setting' => $setting, 'php_versions' => $php_versions]);
+    }
+
+    public function webAppScript($id, $idwa){
+        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer')->json();
+
+        return view("webapp.script",['wascript' => $wascript]);
+    }
+
     public function webAppSslStore($id, $idwa, Request $request){
         if($request->input('provider') == 'letsencrypt'){
             $data = $this->validatorSslA($request);
@@ -108,7 +133,7 @@ class ServerController extends Controller
             ->post(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl',$data)->json();
 
         $status = (!isset($ssl['errors'])) ? "Ssl instalado" : "Erro ao instalar ssl";
-        return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+        return redirect()->route('webapp.ssl', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
 
     }
 
@@ -345,17 +370,20 @@ class ServerController extends Controller
     public function webAppShow($id, $idwa){
         $webapp = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
             ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa)->json();
-        $setting = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/settings')->json();
-        $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/installer')->json();
-        $ssl = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
-            ->get(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/ssl')->json();
-            
-        return view("webapp.show",['webapp' => $webapp, 'wascript' => $wascript,'ssl' => $ssl,'setting' => $setting]);
+
+        return view("webapp.show",['webapp' => $webapp]);
     }
 
-    public function webAppScript($id, $idwa, Request $request){
+    public function webAppPHP($id, $idwa, Request $request){
+        $data = $this->validatorPHP($request);
+        $webapp = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
+            ->patch(env('APP_RUNCLOUD_URL', false).'/servers/'.$id.'/webapps/'.$idwa.'/settings/php',['phpVersion' => $data['php']])->json();
+
+        $status = (!isset($webapp['errors'])) ? "Versão PHP atualizada" : "Erro ao atualizar php";
+        return redirect()->route('webapp.index', ['id' => $id])->with('status', $status);
+    }
+
+    public function webAppScriptStore($id, $idwa, Request $request){
         $data = $this->validatorWebAppScript($request);
 
         $wascript = Http::withBasicAuth(env('APP_RUNCLOUD_USER', false), env('APP_RUNCLOUD_PASS', false))
@@ -367,7 +395,7 @@ class ServerController extends Controller
             return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
         }else{
             $status = "Script instalado com sucesso";
-            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+            return redirect()->route('webapp.script', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
         }
     }
 
@@ -416,7 +444,7 @@ class ServerController extends Controller
             return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
         }else{
             $status = "Script removido";
-            return redirect()->route('webapp.show', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
+            return redirect()->route('webapp.script', ['id' => $id, 'idwa' => $idwa])->with('status', $status);
         }
     }
 
@@ -764,6 +792,13 @@ class ServerController extends Controller
     {
         return $request->validate([
             'script' => ['required'],
+        ]);
+    }
+
+    protected function validatorPHP($request)
+    {
+        return $request->validate([
+            'php' => ['required'],
         ]);
     }
 

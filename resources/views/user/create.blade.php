@@ -4,7 +4,13 @@
 ])
 
 @section('content')
-    <div class="content">       
+    <div class="content">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('user.index') }}">Usuários</a></li>
+                <li class="breadcrumb-item active">Criar</li>
+            </ol>
+        </nav>          
         <div class="row">
             <div class="col-md-12">
                 <div class="card ">
@@ -57,15 +63,6 @@
                                             O campo função é obrigatório
                                         </span>
                                     @endif
-                                </div>
-                                <div class="col-sm-6 form-group">
-                                    <label for="customer">Usuário Vindi</label>
-                                    <select name="customer" id="customer" class="form-control">
-                                        <option value="">Selecione</option>
-                                        @foreach($customers as $customer)
-                                            <option {{ old('customer') == $customer['id'] ? 'selected' : '' }} value="{{$customer['id']}}">#{{$customer['id']}} - {{$customer['name']}}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">

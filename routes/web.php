@@ -22,7 +22,6 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
-	Route::put('profile/paymethods', ['as' => 'profile.paymethods', 'uses' => 'ProfileController@paymethods']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
 });
 
@@ -35,6 +34,7 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::get('/create','UserController@create')->name('user.create');
 		Route::get('/{id}/edit','UserController@edit')->name('user.edit');
 		Route::put('/{user}','UserController@update')->name('user.update');
+		Route::post('/{user}/connect','UserController@connectStore')->name('user.connect.store');
 		Route::post('/','UserController@store')->name('user.store');
 	});
 
@@ -50,7 +50,6 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post('/','SubscriptionController@store')->name('subscription.store');
 		Route::get('/connect','SubscriptionController@connect')->name('subscription.connect');
 		Route::get('/connect/{id}/create','SubscriptionController@connectCreate')->name('subscription.connect.create');
-		Route::post('/connect','SubscriptionController@connectStore')->name('subscription.connect.store');
 		Route::get('/{id}','SubscriptionController@show')->name('subscription.show');
 	});
 
@@ -97,11 +96,15 @@ Route::group(['middleware' => 'auth'], function () {
 		Route::post('{id}/webapp','ServerController@webAppStore')->name('webapp.store');
 		Route::get('/{id}/webapp/create','ServerController@webAppCreate')->name('webapp.create');
 		Route::get('/{id}/webapp/{idwa}/show','ServerController@webAppShow')->name('webapp.show');
+		Route::get('/{id}/webapp/{idwa}/ssl','ServerController@webAppSsl')->name('webapp.ssl');
+		Route::get('/{id}/webapp/{idwa}/edit','ServerController@webAppEdit')->name('webapp.edit');
 		Route::post('{id}/webapp/{idwa}/update','ServerController@webAppUpdate')->name('webapp.update');
 		Route::get('/{id}/webapp/{idwa}/rebuild','ServerController@webAppRebuild')->name('webapp.rebuild');
 		Route::get('/{id}/webapp/{idwa}/default','ServerController@webAppDefault')->name('webapp.default');
 		Route::get('/{id}/webapp/{idwa}/destroy','ServerController@webAppDestroy')->name('webapp.destroy');
-		Route::post('/{id}/webapp/{idwa}/script','ServerController@webAppScript')->name('webapp.script');
+		Route::get('/{id}/webapp/{idwa}/script','ServerController@webAppScript')->name('webapp.script');
+		Route::post('/{id}/webapp/{idwa}/php','ServerController@webAppPHP')->name('webapp.php');
+		Route::post('/{id}/webapp/{idwa}/script','ServerController@webAppScriptStore')->name('webapp.script.store');
 		Route::get('/{id}/webapp/{idwa}/domain','ServerController@webAppDomain')->name('webapp.domain.index');
 		Route::post('/{id}/webapp/{idwa}/domain/store','ServerController@webAppDomainStore')->name('webapp.domain.store');
 		Route::get('/{id}/webapp/{idwa}/domain/{domain}','ServerController@webAppDomainDestroy')->name('webapp.domain.destroy');

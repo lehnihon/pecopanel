@@ -74,7 +74,10 @@
                                             {{$webapp['stackMode']}}
                                         </td>
                                         <td>
-                                            <a href="{{ route('webapp.domain.index',['id'=> request()->id, 'idwa' => $webapp['id']]) }}"><i class="fas fa-link mr-3"></i></a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Editar" href="{{ route('webapp.edit',['id'=> request()->id, 'idwa' => $webapp['id']]) }}"><i class="fas fa-edit mr-2"></i></a>  
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Domínios" href="{{ route('webapp.domain.index',['id'=> request()->id, 'idwa' => $webapp['id']]) }}"><i class="fas fa-link mr-2"></i></a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="SSL" href="{{ route('webapp.ssl',['id'=> request()->id, 'idwa' => $webapp['id']]) }}"><i class="fas fa-lock  mr-2"></i></a>
+                                            <a data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Instalar Script" href="{{ route('webapp.script',['id'=> request()->id, 'idwa' => $webapp['id']]) }}"><i class="fas fa-download"></i></a>                                                                                
                                         </td>
                                     </tr>
                                     @endforeach
@@ -104,5 +107,7 @@
         }
     });
 @endif
+
+$('[data-toggle="popover"]').popover();
 </script>
 @endpush

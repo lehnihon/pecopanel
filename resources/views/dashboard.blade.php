@@ -36,17 +36,24 @@
                                         {{$server->server_os}}
                                     </td>
                                 </tr>
+                                @if(isset($server->user))
                                 <tr>
                                     <th>
-                                        Assinatura
+                                        Usuário ID
                                     </th>
                                     <td>
-                                        <a href="{{ route('subscription.show',$server->subscription_id) }}">
-                                            #{{$server->subscription_id}}
-                                        </a>
+                                        {{$server->user->id}}
                                     </td>
                                 </tr>
-                               
+                                <tr>
+                                    <th>
+                                        Usuário
+                                    </th>
+                                    <td>
+                                        {{$server->user->name}}
+                                    </td>
+                                </tr>
+                                @endif
                             </table>
                         </div>
                     </div>

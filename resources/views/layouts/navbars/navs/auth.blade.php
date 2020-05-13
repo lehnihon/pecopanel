@@ -28,15 +28,7 @@
                         </p>
                     </a>
                 </li>
-                <li class="nav-item mr-auto {{ $elementActive == 'subscription.index' ? 'active' : '' }}">
-                    <a class="nav-link btn-magnify" href="{{ route('subscription.index') }}">
-                        <i class="nc-icon nc-spaceship"></i>
-                        <p>
-                        <span>Assinaturas</span>
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item btn-rotate dropdown {{ $elementActive == 'profile' ? 'active' : '' }}">
+                <li class="ml-auto nav-item btn-rotate dropdown {{ $elementActive == 'profile' ? 'active' : '' }}">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink2"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="nc-icon nc-single-02"></i>
